@@ -3,7 +3,7 @@
 DIST := dist
 EXECUTABLE := gorush
 
-DEPLOY_ACCOUNT := jaraxasoftware
+DEPLOY_ACCOUNT := netcomposer
 DEPLOY_IMAGE := $(EXECUTABLE)
 CONTAINER := js-gorush
 PORT := 8088
