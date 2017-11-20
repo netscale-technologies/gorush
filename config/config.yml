@@ -11,6 +11,7 @@ core:
   cert_path: "cert.pem"
   key_path: "key.pem"
   http_proxy: "" # only working for FCM server
+  callback_url: ""
   pid:
     enabled: false
     path: "gorush.pid"

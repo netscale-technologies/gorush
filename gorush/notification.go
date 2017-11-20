@@ -43,6 +43,7 @@ type Alert struct {
 type RequestPush struct {
 	Notifications []PushNotification `json:"notifications" binding:"required"`
 	Sync          *bool              `json:"sync,omitempty"`
+	CallbackUrl   *string            `json:"callback_url,omitempty"`
 }
 
 type Subscription struct {

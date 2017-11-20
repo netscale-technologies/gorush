@@ -24,6 +24,7 @@ core:
   cert_path: "cert.pem"
   key_path: "key.pem"
   http_proxy: "" # only working for FCM server
+  callback_url: ""
   pid:
     enabled: false
     path: "gorush.pid"
@@ -118,6 +119,7 @@ type SectionCore struct {
 	CertPath        string         `yaml:"cert_path"`
 	KeyPath         string         `yaml:"key_path"`
 	HTTPProxy       string         `yaml:"http_proxy"`
+	CallbackUrl     string         `yaml:"callback_url"`
 	PID             SectionPID     `yaml:"pid"`
 	AutoTLS         SectionAutoTLS `yaml:"auto_tls"`
 }
@@ -270,6 +272,7 @@ func LoadConf(confPath string) (ConfYaml, error) {
 	conf.Core.KeyPath = viper.GetString("core.key_path")
 	conf.Core.MaxNotification = int64(viper.GetInt("core.max_notification"))
 	conf.Core.HTTPProxy = viper.GetString("core.http_proxy")
+	conf.Core.CallbackUrl = viper.GetString("core.callback_url")
 	conf.Core.PID.Enabled = viper.GetBool("core.pid.enabled")
 	conf.Core.PID.Path = viper.GetString("core.pid.path")
 	conf.Core.PID.Override = viper.GetBool("core.pid.override")
