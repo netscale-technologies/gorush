@@ -4,12 +4,12 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jaraxasoftware/gorush/storage/boltdb"
 	"github.com/jaraxasoftware/gorush/storage/buntdb"
 	"github.com/jaraxasoftware/gorush/storage/leveldb"
 	"github.com/jaraxasoftware/gorush/storage/memory"
 	"github.com/jaraxasoftware/gorush/storage/redis"
-	"github.com/gin-gonic/gin"
 	"github.com/thoas/stats"
 )
 

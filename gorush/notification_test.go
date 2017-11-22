@@ -9,7 +9,7 @@ import (
 )
 
 func TestCorrectConf(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = "xxxxx"
@@ -23,7 +23,7 @@ func TestCorrectConf(t *testing.T) {
 }
 
 func TestSenMultipleNotifications(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	InitWorkers(int64(2), 2)
 
@@ -37,30 +37,41 @@ func TestSenMultipleNotifications(t *testing.T) {
 
 	androidToken := os.Getenv("ANDROID_TEST_TOKEN")
 
+	PushConf.Web.Enabled = true
+	PushConf.Web.APIKey = os.Getenv("ANDROID_API_KEY")
+	err2 := InitWebClient()
+	assert.Nil(t, err2)
+
 	req := RequestPush{
 		Notifications: []PushNotification{
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "Welcome",
+			},
+			// web
+			{
+				Subscriptions: []Subscription{{"https://updates.push.services.mozilla.com/wpush/v1/gAAAAABZdwpXbtIhiT_gXZZ_lUrs0AqbMROAwW8-LpTVx_LNYTU-xrcvIoZ7LXNNeTSSO525EYuKCeGueKtSqi626yCOAaFWYAzRu9hOIwvVmJFfN3BIlMjR9PJU28s7JsNVKywp4_wb", "BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8", "j7NMANtEQ5zoFUGtiCdqRQ"}},
+				Platform:      PlatformWeb,
+				Message:       "Welcome",
 			},
 		},
 	}
 
 	count, logs := queueNotification(req)
-	assert.Equal(t, 3, count)
+	assert.Equal(t, 4, count)
 	assert.Equal(t, 0, len(logs))
 }
 
 func TestDisabledAndroidNotifications(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Ios.Enabled = true
 	PushConf.Ios.KeyPath = "../certificate/certificate-valid.pem"
@@ -77,13 +88,13 @@ func TestDisabledAndroidNotifications(t *testing.T) {
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "Welcome",
 			},
 		},
@@ -95,7 +106,7 @@ func TestDisabledAndroidNotifications(t *testing.T) {
 }
 
 func TestSyncModeForNotifications(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Ios.Enabled = true
 	PushConf.Ios.KeyPath = "../certificate/certificate-valid.pem"
@@ -110,26 +121,121 @@ func TestSyncModeForNotifications(t *testing.T) {
 
 	androidToken := os.Getenv("ANDROID_TEST_TOKEN")
 
+	PushConf.Web.Enabled = true
+	PushConf.Web.APIKey = os.Getenv("ANDROID_API_KEY")
+	err2 := InitWebClient()
+	assert.Nil(t, err2)
+
 	req := RequestPush{
 		Notifications: []PushNotification{
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
+				Message:  "Welcome",
+			},
+			// web
+			{
+				Subscriptions: []Subscription{
+					{
+						"https://updates.push.services.mozilla.com/wpush/v1/gAAAAABZdwpXbtIhiT_gXZZ_lUrs0AqbMROAwW8-LpTVx_LNYTU-xrcvIoZ7LXNNeTSSO525EYuKCeGueKtSqi626yCOAaFWYAzRu9hOIwvVmJFfN3BIlMjR9PJU28s7JsNVKywp4_wb",
+						"BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8",
+						"j7NMANtEQ5zoFUGtiCdqRQ",
+					},
+					{
+						"https://updates.push.services.mozilla.com/wpush/v1/g",
+						"BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8",
+						"j7NMANtEQ5zoFUGtiCdqRQ",
+					},
+					{
+						"aaaaa",
+						"bbbbb",
+						"ccccc",
+					},
+				},
+				Platform: PlatformWeb,
 				Message:  "Welcome",
 			},
 		},
 	}
 
 	count, logs := queueNotification(req)
-	assert.Equal(t, 3, count)
-	assert.Equal(t, 2, len(logs))
+	assert.Equal(t, 6, count)
+	assert.Equal(t, 4, len(logs))
+}
+
+func TestSyncModeForTopicNotification(t *testing.T) {
+	PushConf, _ = config.LoadConf("")
+
+	PushConf.Android.Enabled = true
+	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
+	PushConf.Log.HideToken = false
+
+	// enable sync mode
+	PushConf.Core.Sync = true
+
+	req := RequestPush{
+		Notifications: []PushNotification{
+			// android
+			{
+				// error:InvalidParameters
+				// Check that the provided parameters have the right name and type.
+				To:       "/topics/foo-bar@@@##",
+				Platform: PlatformAndroid,
+				Message:  "This is a Firebase Cloud Messaging Topic Message!",
+			},
+			// android
+			{
+				// success
+				To:       "/topics/foo-bar",
+				Platform: PlatformAndroid,
+				Message:  "This is a Firebase Cloud Messaging Topic Message!",
+			},
+			// android
+			{
+				// success
+				Condition: "'dogs' in topics || 'cats' in topics",
+				Platform:  PlatformAndroid,
+				Message:   "This is a Firebase Cloud Messaging Topic Message!",
+			},
+		},
+	}
+
+	count, logs := queueNotification(req)
+	assert.Equal(t, 2, count)
+	assert.Equal(t, 1, len(logs))
+}
+
+func TestSyncModeForDeviceGroupNotification(t *testing.T) {
+	PushConf, _ = config.LoadConf("")
+
+	PushConf.Android.Enabled = true
+	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
+	PushConf.Log.HideToken = false
+
+	// enable sync mode
+	PushConf.Core.Sync = true
+
+	req := RequestPush{
+		Notifications: []PushNotification{
+			// android
+			{
+				To:       "aUniqueKey",
+				Platform: PlatformAndroid,
+				Message:  "This is a Firebase Cloud Messaging Device Group Message!",
+			},
+		},
+	}
+
+	count, logs := queueNotification(req)
+	assert.Equal(t, 1, count)
+	assert.Equal(t, 1, len(logs))
 }
 
 func TestSetProxyURL(t *testing.T) {

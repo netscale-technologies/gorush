@@ -5,10 +5,14 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 
 	"github.com/appleboy/go-fcm"
 )
+
+// D provide string array
+type D map[string]interface{}
 
 const (
 	// ApnsPriorityLow will tell APNs to send the push message at a time that takes
@@ -42,26 +46,28 @@ type Alert struct {
 type RequestPush struct {
 	Notifications []PushNotification `json:"notifications" binding:"required"`
 	Sync          *bool              `json:"sync,omitempty"`
+	CallbackUrl   *string            `json:"callback_url,omitempty"`
 }
 
+// Subscription is the Webpush subscription object.
 type Subscription struct {
-	Endpoint  string    `json:"endpoint" binding:"required"`
-	Key       string    `json:"key" binding:"required"`
-	Auth      string    `json:"auth" binding:"required"`
+	Endpoint string `json:"endpoint" binding:"required"`
+	Key      string `json:"key" binding:"required"`
+	Auth     string `json:"auth" binding:"required"`
 }
 
 // PushNotification is single notification request
 type PushNotification struct {
 	// Common
-	Tokens           []string               `json:"tokens" binding:"required"`
-	Platform         int                    `json:"platform" binding:"required"`
-	Message          string                 `json:"message,omitempty"`
-	Title            string                 `json:"title,omitempty"`
-	Priority         string                 `json:"priority,omitempty"`
-	ContentAvailable bool                   `json:"content_available,omitempty"`
-	Sound            string                 `json:"sound,omitempty"`
-	Data             map[string]interface{} `json:"data,omitempty"`
-	Retry            int                    `json:"retry,omitempty"`
+	Tokens           []string `json:"tokens" binding:"required"`
+	Platform         int      `json:"platform" binding:"required"`
+	Message          string   `json:"message,omitempty"`
+	Title            string   `json:"title,omitempty"`
+	Priority         string   `json:"priority,omitempty"`
+	ContentAvailable bool     `json:"content_available,omitempty"`
+	Sound            string   `json:"sound,omitempty"`
+	Data             D        `json:"data,omitempty"`
+	Retry            int      `json:"retry,omitempty"`
 	wg               *sync.WaitGroup
 	log              *[]LogPushEntry
 	sync             bool
@@ -74,21 +80,25 @@ type PushNotification struct {
 	TimeToLive            *uint            `json:"time_to_live,omitempty"`
 	RestrictedPackageName string           `json:"restricted_package_name,omitempty"`
 	DryRun                bool             `json:"dry_run,omitempty"`
+	Condition             string           `json:"condition,omitempty"`
 	Notification          fcm.Notification `json:"notification,omitempty"`
 
 	// iOS
 	Expiration     int64    `json:"expiration,omitempty"`
 	ApnsID         string   `json:"apns_id,omitempty"`
+	CollapseID     string   `json:"collapse_id,omitempty"`
 	Topic          string   `json:"topic,omitempty"`
 	Badge          *int     `json:"badge,omitempty"`
 	Category       string   `json:"category,omitempty"`
 	URLArgs        []string `json:"url-args,omitempty"`
 	Alert          Alert    `json:"alert,omitempty"`
 	MutableContent bool     `json:"mutable-content,omitempty"`
+	Production     bool     `json:"production,omitempty"`
+	Development    bool     `json:"development,omitempty"`
 	Voip           bool     `json:"voip,omitempty"`
 
 	// Web
-	Subscriptions  []Subscription `json:"subscriptions,omitempty"`
+	Subscriptions []Subscription `json:"subscriptions,omitempty"`
 }
 
 // WaitDone decrements the WaitGroup counter.
@@ -112,18 +122,32 @@ func (p *PushNotification) AddLog(log LogPushEntry) {
 	}
 }
 
+// IsTopic check if message format is topic for FCM
+// ref: https://firebase.google.com/docs/cloud-messaging/send-message#topic-http-post-request
+func (p *PushNotification) IsTopic() bool {
+	return (p.Platform == PlatformAndroid && p.To != "" && strings.HasPrefix(p.To, "/topics/")) ||
+		p.Condition != ""
+}
+
 // CheckMessage for check request message
 func CheckMessage(req PushNotification) error {
 	var msg string
 
-    if req.Platform == PlatformIos || req.Platform == PlatformAndroid {
-		if len(req.Tokens) == 0 {
+	if req.Platform == PlatformWeb {
+		if len(req.Subscriptions) == 0 {
+			msg = "the message must specify at least one subscription"
+			LogAccess.Debug(msg)
+			return errors.New(msg)
+		}
+	} else {
+		// ignore send topic mesaage from FCM
+		if !req.IsTopic() && len(req.Tokens) == 0 && len(req.To) == 0 {
 			msg = "the message must specify at least one registration ID"
 			LogAccess.Debug(msg)
 			return errors.New(msg)
 		}
 
-		if req.Platform == PlatformIos && len(req.Tokens[0]) == 0 {
+		if len(req.Tokens) > 0 && len(req.Tokens[0]) == 0 {
 			msg = "the token must not be empty"
 			LogAccess.Debug(msg)
 			return errors.New(msg)
@@ -139,12 +163,6 @@ func CheckMessage(req PushNotification) error {
 		if req.Platform == PlatformAndroid && req.TimeToLive != nil && (*req.TimeToLive < uint(0) || uint(2419200) < *req.TimeToLive) {
 			msg = "the message's TimeToLive field must be an integer " +
 				"between 0 and 2419200 (4 weeks)"
-			LogAccess.Debug(msg)
-			return errors.New(msg)
-		}
-	} else if req.Platform == PlatformWeb {
-		if len(req.Subscriptions) == 0 {
-			msg = "the message must specify at least one subscription"
 			LogAccess.Debug(msg)
 			return errors.New(msg)
 		}
@@ -188,6 +206,11 @@ func CheckPushConf() error {
 	if PushConf.Ios.VoipEnabled {
 		if PushConf.Ios.VoipKeyPath == "" {
 			return errors.New("Missing VoIP iOS certificate path")
+		}
+
+		// check certificate file exist
+		if _, err := os.Stat(PushConf.Ios.VoipKeyPath); os.IsNotExist(err) {
+			return errors.New("VoIP certificate file does not exist")
 		}
 	}
 

@@ -1,29 +1,29 @@
 package gorush
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 
 	"github.com/jaraxasoftware/gorush/web"
 )
 
 // InitWebClient use for initialize APNs Client.
 func InitWebClient() error {
-    if PushConf.Web.Enabled {
-        //var err error
-        WebClient = web.NewClient(PushConf.Web.APIKey)
-    }
+	if PushConf.Web.Enabled {
+		//var err error
+		WebClient = web.NewClient()
+	}
 
-    return nil
+	return nil
 }
 
-func GetWebNotification(req PushNotification, subscription *Subscription) *web.Notification {
+func getWebNotification(req PushNotification, subscription *Subscription) *web.Notification {
 	notification := &web.Notification{
-		Payload: &req.Data,
+		Payload: (*map[string]interface{})(&req.Data),
 		Subscription: &web.Subscription{
-			Endpoint: subscription.Endpoint, 
-			Key: subscription.Key, 
-			Auth: subscription.Auth,
+			Endpoint: subscription.Endpoint,
+			Key:      subscription.Key,
+			Auth:     subscription.Auth,
 		},
 		TimeToLive: req.TimeToLive,
 	}
@@ -53,6 +53,11 @@ func PushToWeb(req PushNotification) bool {
 		return false
 	}
 
+	var apiKey = PushConf.Web.APIKey
+	if req.APIKey != "" {
+		apiKey = req.APIKey
+	}
+
 Retry:
 	var isError = false
 
@@ -60,32 +65,38 @@ Retry:
 	failureCount := 0
 
 	for _, subscription := range req.Subscriptions {
-		notification := GetWebNotification(req, &subscription)
-		response, err := WebClient.Push(notification)
+		notification := getWebNotification(req, &subscription)
+		response, err := WebClient.Push(notification, apiKey)
 		if err != nil {
+			isError = true
 			failureCount++
 			LogPush(FailedPush, subscription.Endpoint, req, err)
 			fmt.Println(err)
 			if doSync {
-				var errorText = response.Body
-				var browser web.Browser
-				var found = false
-				for _, current := range web.Browsers {
-					if current.ReDetect.FindString(subscription.Endpoint) != "" {
-						browser = current
-						found = true
+				if response == nil {
+					req.AddLog(getLogPushEntry(FailedPush, subscription.Endpoint, req, err))
+				} else {
+					var errorText = response.Body
+					var browser web.Browser
+					var found = false
+					for _, current := range web.Browsers {
+						if current.ReDetect.FindString(subscription.Endpoint) != "" {
+							browser = current
+							found = true
+						}
 					}
-				}
-				if found {
-					match := browser.ReError.FindStringSubmatch(errorText)
-					if match != nil && len(match) > 1 {
-						errorText = match[1]
+					if found {
+						match := browser.ReError.FindStringSubmatch(errorText)
+						if match != nil && len(match) > 1 && match[1] != "" {
+							errorText = match[1]
+						}
 					}
+					var errorObj = errors.New(errorText)
+					req.AddLog(getLogPushEntry(FailedPush, subscription.Endpoint, req, errorObj))
 				}
-				var errorObj = errors.New(errorText)
-				req.AddLog(getLogPushEntry(FailedPush, subscription.Endpoint, req, errorObj))
-			} 
+			}
 		} else {
+			isError = false
 			successCount++
 			LogPush(SucceededPush, subscription.Endpoint, req, nil)
 		}
@@ -101,5 +112,5 @@ Retry:
 		goto Retry
 	}
 
-	return isError  	
+	return isError
 }

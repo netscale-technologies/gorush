@@ -1,6 +1,11 @@
 package gorush
 
 import (
+	"bytes"
+	"encoding/json"
+	"github.com/gin-gonic/gin"
+	"io/ioutil"
+	"net/http"
 	"sync"
 )
 
@@ -32,12 +37,40 @@ func startWorker() {
 	}
 }
 
+func waitAndPerformCallback(callbackUrl string, count int, wg *sync.WaitGroup, log *[]LogPushEntry) {
+	if wg != nil {
+		wg.Wait()
+		reqBody, err := json.Marshal(gin.H{
+			"success": "ok",
+			"counts":  count,
+			"logs":    log,
+		})
+		if err != nil {
+			var msg = "Error converting logs to JSON."
+			LogAccess.Debug(msg)
+			return
+		}
+		resp, err2 := http.Post(callbackUrl, "application/json", bytes.NewBuffer(reqBody))
+		if err2 != nil {
+			var msg = "Error posting logs to callback URL."
+			LogAccess.Debug(msg)
+			return
+		}
+		defer resp.Body.Close()
+		ioutil.ReadAll(resp.Body)
+	}
+}
+
 // queueNotification add notification to queue list.
 func queueNotification(req RequestPush) (int, []LogPushEntry) {
 	var count int
 	var doSync = PushConf.Core.Sync
-	if (req.Sync != nil) {
+	if req.Sync != nil {
 		doSync = *req.Sync
+	}
+	var callbackUrl = PushConf.Core.CallbackUrl
+	if req.CallbackUrl != nil {
+		callbackUrl = *req.CallbackUrl
 	}
 	wg := sync.WaitGroup{}
 	newNotification := []PushNotification{}
@@ -59,13 +92,13 @@ func queueNotification(req RequestPush) (int, []LogPushEntry) {
 				continue
 			}
 		}
-		notification.sync = doSync
+		notification.sync = doSync || callbackUrl != ""
 		newNotification = append(newNotification, notification)
 	}
 
 	log := make([]LogPushEntry, 0, count)
 	for _, notification := range newNotification {
-		if doSync {
+		if doSync || callbackUrl != "" {
 			notification.wg = &wg
 			notification.log = &log
 			notification.AddWaitCount()
@@ -77,10 +110,16 @@ func queueNotification(req RequestPush) (int, []LogPushEntry) {
 		default:
 			count += len(notification.Tokens)
 		}
+		// Count topic message
+		if notification.To != "" {
+			count++
+		}
 	}
 
 	if doSync {
 		wg.Wait()
+	} else if callbackUrl != "" {
+		go waitAndPerformCallback(callbackUrl, count, &wg, &log)
 	}
 
 	StatStorage.AddTotalCount(int64(count))

@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 	if err := InitLog(); err != nil {
 		log.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func init() {
 }
 
 func TestMissingAndroidAPIKey(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = ""
@@ -43,14 +43,14 @@ func TestMissingKeyForInitFCMClient(t *testing.T) {
 }
 
 func TestPushToAndroidWrongToken(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
 
 	req := PushNotification{
 		Tokens:   []string{"aaaaaa", "bbbbb"},
-		Platform: PlatFormAndroid,
+		Platform: PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -60,7 +60,7 @@ func TestPushToAndroidWrongToken(t *testing.T) {
 }
 
 func TestPushToAndroidRightTokenForJSONLog(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
@@ -71,7 +71,7 @@ func TestPushToAndroidRightTokenForJSONLog(t *testing.T) {
 
 	req := PushNotification{
 		Tokens:   []string{androidToken},
-		Platform: PlatFormAndroid,
+		Platform: PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -80,7 +80,7 @@ func TestPushToAndroidRightTokenForJSONLog(t *testing.T) {
 }
 
 func TestPushToAndroidRightTokenForStringLog(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
@@ -89,7 +89,7 @@ func TestPushToAndroidRightTokenForStringLog(t *testing.T) {
 
 	req := PushNotification{
 		Tokens:   []string{androidToken},
-		Platform: PlatFormAndroid,
+		Platform: PlatformAndroid,
 		Message:  "Welcome",
 	}
 
@@ -98,7 +98,7 @@ func TestPushToAndroidRightTokenForStringLog(t *testing.T) {
 }
 
 func TestOverwriteAndroidAPIKey(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
@@ -107,7 +107,7 @@ func TestOverwriteAndroidAPIKey(t *testing.T) {
 
 	req := PushNotification{
 		Tokens:   []string{androidToken, "bbbbb"},
-		Platform: PlatFormAndroid,
+		Platform: PlatformAndroid,
 		Message:  "Welcome",
 		// overwrite android api key
 		APIKey: "1234",
@@ -140,10 +140,30 @@ func TestFCMMessage(t *testing.T) {
 	err = CheckMessage(req)
 	assert.Error(t, err)
 
+	// ignore check token length if send topic message
+	req = PushNotification{
+		Message:  "Test",
+		Platform: PlatformAndroid,
+		To:       "/topics/foo-bar",
+	}
+
+	err = CheckMessage(req)
+	assert.NoError(t, err)
+
+	// "condition": "'dogs' in topics || 'cats' in topics",
+	req = PushNotification{
+		Message:   "Test",
+		Platform:  PlatformAndroid,
+		Condition: "'dogs' in topics || 'cats' in topics",
+	}
+
+	err = CheckMessage(req)
+	assert.NoError(t, err)
+
 	// the message may specify at most 1000 registration IDs
 	req = PushNotification{
 		Message:  "Test",
-		Platform: PlatFormAndroid,
+		Platform: PlatformAndroid,
 		Tokens:   make([]string, 1001),
 	}
 
@@ -155,7 +175,7 @@ func TestFCMMessage(t *testing.T) {
 	timeToLive := uint(2419201)
 	req = PushNotification{
 		Message:    "Test",
-		Platform:   PlatFormAndroid,
+		Platform:   PlatformAndroid,
 		Tokens:     []string{"XXXXXXXXX"},
 		TimeToLive: &timeToLive,
 	}
@@ -167,7 +187,7 @@ func TestFCMMessage(t *testing.T) {
 	timeToLive = uint(86400)
 	req = PushNotification{
 		Message:    "Test",
-		Platform:   PlatFormAndroid,
+		Platform:   PlatformAndroid,
 		Tokens:     []string{"XXXXXXXXX"},
 		TimeToLive: &timeToLive,
 	}
@@ -177,7 +197,7 @@ func TestFCMMessage(t *testing.T) {
 }
 
 func TestCheckAndroidMessage(t *testing.T) {
-	PushConf = config.BuildDefaultPushConf()
+	PushConf, _ = config.LoadConf("")
 
 	PushConf.Android.Enabled = true
 	PushConf.Android.APIKey = os.Getenv("ANDROID_API_KEY")
@@ -185,7 +205,7 @@ func TestCheckAndroidMessage(t *testing.T) {
 	timeToLive := uint(2419201)
 	req := PushNotification{
 		Tokens:     []string{"aaaaaa", "bbbbb"},
-		Platform:   PlatFormAndroid,
+		Platform:   PlatformAndroid,
 		Message:    "Welcome",
 		TimeToLive: &timeToLive,
 	}
