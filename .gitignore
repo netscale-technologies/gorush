@@ -34,3 +34,8 @@ gorush.db
 coverage.txt
 dist
 custom
+
+scripts/*.sh
+scripts/*.tar.gz
+scripts/config/config.yml
+scripts/config/*.pem

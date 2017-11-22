@@ -2,8 +2,10 @@ DIST := dist
 EXECUTABLE := gorush
 
 GO ?= go
-DEPLOY_ACCOUNT := appleboy
+DEPLOY_ACCOUNT := jaraxasoftware
 DEPLOY_IMAGE := $(EXECUTABLE)
+CONTAINER := js-gorush
+PORT := 8088
 GOFMT ?= gofmt "-s"
 EXTERNAL_TOOLS=\
 	github.com/mitchellh/gox \
@@ -184,7 +186,7 @@ docker_build_arm:
 docker_image:
 	docker build -t $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE) -f Dockerfile .
 
-docker_release: docker_image
+docker_release: docker_build docker_image
 
 docker_deploy:
 ifeq ($(tag),)
@@ -193,6 +195,65 @@ ifeq ($(tag),)
 endif
 	docker tag $(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
 	docker push $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
+
+docker_stop:
+	@if [ $(shell docker ps -a | grep -ci $(CONTAINER)) -eq 1 ]; then \
+		docker stop $(CONTAINER) > /dev/null 2>&1; \
+	fi
+
+docker_rm: docker_stop
+	@if [ $(shell docker ps -a | grep -ci $(CONTAINER)) -eq 1 ]; then \
+		docker rm $(CONTAINER) > /dev/null 2>&1; \
+	fi
+
+docker_rmi: docker_rm
+ifeq ($(tag),)
+	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(EXECUTABLE)) -eq 1 ]; then \
+		docker rmi $(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest > /dev/null 2>&1; \
+	fi;
+	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
+		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
+	fi
+else
+	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(EXECUTABLE)) -eq 1 ]; then \
+		docker rmi $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag) > /dev/null 2>&1; \
+	fi;
+	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
+		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
+	fi
+endif
+
+docker_run: docker_rm
+	docker run -ti -d --name $(CONTAINER) --restart always \
+	-p ${PORT}:8088 \
+	-v ${CURDIR}/config:/config:ro \
+	$(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest /gorush -c /config/config.yml
+
+docker_test:
+	curl \
+	-XGET \
+	-H "Accept: application/json" \
+ 	"localhost:$(PORT)/api/stat/go" | python -mjson.tool
+
+docker_save:
+	docker save $(DEPLOY_ACCOUNT)/$(EXECUTABLE) | gzip > $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz
+
+docker_load:
+	gunzip < $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz | docker load
+
+docker_zip_only:
+	cp $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz scripts/$(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz;
+	cp build.sh scripts/build.sh;
+	cp remove.sh scripts/remove.sh;
+	cp start.sh scripts/start.sh;
+	cp stop.sh scripts/stop.sh;
+	cp test.sh scripts/test.sh;
+	rm -f scripts/.DS_Store;
+	rm -f gorush.zip;
+	cd scripts; zip -r -X ../gorush.zip .
+
+docker_zip: clean docker_rmi docker_build docker_image docker_run docker_test docker_save docker_rmi docker_zip_only
+	# !IMPORTANT: Check the test output before using gorush.zip file
 
 clean:
 	$(GO) clean -x -i ./...
