@@ -37,25 +37,36 @@ func TestSenMultipleNotifications(t *testing.T) {
 
 	androidToken := os.Getenv("ANDROID_TEST_TOKEN")
 
+	PushConf.Web.Enabled = true
+	PushConf.Web.APIKey = os.Getenv("ANDROID_API_KEY")
+	err2 := InitWebClient()
+	assert.Nil(t, err2)
+
 	req := RequestPush{
 		Notifications: []PushNotification{
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "Welcome",
+			},
+			// web
+			{
+				Subscriptions: []Subscription{{"https://updates.push.services.mozilla.com/wpush/v1/gAAAAABZdwpXbtIhiT_gXZZ_lUrs0AqbMROAwW8-LpTVx_LNYTU-xrcvIoZ7LXNNeTSSO525EYuKCeGueKtSqi626yCOAaFWYAzRu9hOIwvVmJFfN3BIlMjR9PJU28s7JsNVKywp4_wb", "BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8", "j7NMANtEQ5zoFUGtiCdqRQ"}},
+				Platform:      PlatformWeb,
+				Message:       "Welcome",
 			},
 		},
 	}
 
 	count, logs := queueNotification(req)
-	assert.Equal(t, 3, count)
+	assert.Equal(t, 4, count)
 	assert.Equal(t, 0, len(logs))
 }
 
@@ -77,13 +88,13 @@ func TestDisabledAndroidNotifications(t *testing.T) {
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "Welcome",
 			},
 		},
@@ -110,26 +121,53 @@ func TestSyncModeForNotifications(t *testing.T) {
 
 	androidToken := os.Getenv("ANDROID_TEST_TOKEN")
 
+	PushConf.Web.Enabled = true
+	PushConf.Web.APIKey = os.Getenv("ANDROID_API_KEY")
+	err2 := InitWebClient()
+	assert.Nil(t, err2)
+
 	req := RequestPush{
 		Notifications: []PushNotification{
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, "bbbbb"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
+				Message:  "Welcome",
+			},
+			// web
+			{
+				Subscriptions: []Subscription{
+					{
+						"https://updates.push.services.mozilla.com/wpush/v1/gAAAAABZdwpXbtIhiT_gXZZ_lUrs0AqbMROAwW8-LpTVx_LNYTU-xrcvIoZ7LXNNeTSSO525EYuKCeGueKtSqi626yCOAaFWYAzRu9hOIwvVmJFfN3BIlMjR9PJU28s7JsNVKywp4_wb",
+						"BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8",
+						"j7NMANtEQ5zoFUGtiCdqRQ",
+					},
+					{
+						"https://updates.push.services.mozilla.com/wpush/v1/g",
+						"BIqGnYTkDOAyPNTInUdE7AeYnA2LrHNu6jKpfYwcfl3Z8EVyRtftqpHgJTku3YjQBGwqJyzxsYwc9tHNB5jUks8",
+						"j7NMANtEQ5zoFUGtiCdqRQ",
+					},
+					{
+						"aaaaa",
+						"bbbbb",
+						"ccccc",
+					},
+				},
+				Platform: PlatformWeb,
 				Message:  "Welcome",
 			},
 		},
 	}
 
 	count, logs := queueNotification(req)
-	assert.Equal(t, 3, count)
-	assert.Equal(t, 2, len(logs))
+	assert.Equal(t, 6, count)
+	assert.Equal(t, 4, len(logs))
 }
 
 func TestSyncModeForTopicNotification(t *testing.T) {
@@ -149,21 +187,21 @@ func TestSyncModeForTopicNotification(t *testing.T) {
 				// error:InvalidParameters
 				// Check that the provided parameters have the right name and type.
 				To:       "/topics/foo-bar@@@##",
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Topic Message!",
 			},
 			// android
 			{
 				// success
 				To:       "/topics/foo-bar",
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Topic Message!",
 			},
 			// android
 			{
 				// success
 				Condition: "'dogs' in topics || 'cats' in topics",
-				Platform:  PlatFormAndroid,
+				Platform:  PlatformAndroid,
 				Message:   "This is a Firebase Cloud Messaging Topic Message!",
 			},
 		},
@@ -189,7 +227,7 @@ func TestSyncModeForDeviceGroupNotification(t *testing.T) {
 			// android
 			{
 				To:       "aUniqueKey",
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "This is a Firebase Cloud Messaging Device Group Message!",
 			},
 		},

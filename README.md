@@ -2,8 +2,6 @@
 
 A push notification micro server using [Gin](https://github.com/gin-gonic/gin) framework written in Go (Golang).
 
-Forked from [gorush](https://github.com/appleboy/gorush)
-
 [![GoDoc](https://godoc.org/github.com/appleboy/gorush?status.svg)](https://godoc.org/github.com/appleboy/gorush)
 [![Build Status](http://drone.wu-boy.com/api/badges/appleboy/gorush/status.svg)](http://drone.wu-boy.com/appleboy/gorush)
 [![codecov](https://codecov.io/gh/appleboy/gorush/branch/master/graph/badge.svg)](https://codecov.io/gh/appleboy/gorush)
@@ -117,18 +115,18 @@ ios:
   key_path: "key.pem"
   password: "" # certificate password, default as empty string.
   production: false
+  max_retry: 0 # resend fail notification, default value zero is disabled
   voip_enabled: false
   voip_key_path: "voipkey.pem"
   voip_password: ""
   voip_production: false
-  max_retry: 0 # resend fail notification, default value zero is disabled
+  key_id: "" # KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
+  team_id: "" # TeamID from developer account (View Account -> Membership)
 
 web:
   enabled: false
   apikey: "YOUR_GCM_API_KEY"
   max_retry: 0 # resend fail notification, default value zero is disabled
-  key_id: "" # KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
-  team_id: "" # TeamID from developer account (View Account -> Membership)
 
 log:
   format: "string" # string or json
@@ -751,7 +749,7 @@ Error response message table:
 | 400         | Notifications field is empty.              |
 | 400         | Number of notifications(50) over limit(10) |
 
-Success response on async request:
+Success response:
 
 ```json
 {
@@ -760,16 +758,6 @@ Success response on async request:
   "success": "ok"
 }
 ```
-
-Success response on sync request:
-
-```json
-{
-  "apnsFailedResults": {},
-  "gcmFailedResults": {},
-  "success": "ok",
-  "webFailedResults": {}
-}
 
 If you need error logs from sending fail notifications, please set `sync` as `true` on yaml config.
 
@@ -814,40 +802,6 @@ See the following error format.
   "success": "ok"
 }
 ```
-
-Response with some fails for each platform on sync request:
-
-```json
-{
-  "apnsFailedResults": {
-    "apns_token_a": {
-      "StatusCode": 400,
-      "Reason": "BadDeviceToken",
-      "ApnsID": "apns_id_a",
-      "Timestamp": "0001-01-01T00:00:00Z"
-    }
-  },
-  "gcmFailedResults": {
-    "gcm_token_a": "InvalidRegistration"
-  },
-  "success": "ok",
-  "webFailedResults": {
-    "chrome_endpoint_a": {
-      "StatusCode": 400,
-      "Body": "<HTML>\n<HEAD>\n<TITLE>UnauthorizedRegistration</TITLE>\n</HEAD>\n<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n<H1>UnauthorizedRegistration</H1>\n<H2>Error 400</H2>\n</BODY>\n</HTML>\n"
-    },
-    "firefox_endpoint_a": {
-      "StatusCode": 410,
-      "Body": "{\"code\": 410, \"errno\": 106, \"error\": \"\", \"more_info\": \"http://autopush.readthedocs.io/en/latest/http.html#error-codes\", \"message\": \"Request did not validate No such subscription\"}"
-    },
-    "firefox_endpoint_b": {
-      "StatusCode": 404,
-      "Body": "{\"code\": 404, \"errno\": 102, \"error\": \"Not Found\", \"more_info\": \"http://autopush.readthedocs.io/en/latest/http.html#error-codes\", \"message\": \"Request did not validate invalid token\"}"
-    }
-  }
-}
-```
-
 
 ## Run gRPC service
 

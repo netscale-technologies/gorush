@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jaraxasoftware/gorush/config"
 	"github.com/buger/jsonparser"
+	"github.com/jaraxasoftware/gorush/config"
 	"github.com/sideshow/apns2"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,7 +20,7 @@ func TestDisabledAndroidIosConf(t *testing.T) {
 	err := CheckPushConf()
 
 	assert.Error(t, err)
-	assert.Equal(t, "Please enable iOS or Android config in yml config", err.Error())
+	assert.Equal(t, "Please enable iOS, Android or Web config in yml config", err.Error())
 }
 
 func TestMissingIOSCertificate(t *testing.T) {
@@ -367,13 +367,13 @@ func TestDisabledIosNotifications(t *testing.T) {
 			//ios
 			{
 				Tokens:   []string{"11aa01229f15f0f0c52029d8cf8cd0aeaf2365fe4cebc4af26cd6d76b7919ef7"},
-				Platform: PlatFormIos,
+				Platform: PlatformIos,
 				Message:  "Welcome",
 			},
 			// android
 			{
 				Tokens:   []string{androidToken, androidToken + "_"},
-				Platform: PlatFormAndroid,
+				Platform: PlatformAndroid,
 				Message:  "Welcome",
 			},
 		},

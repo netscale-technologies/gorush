@@ -130,7 +130,6 @@ func main() {
 	if opts.Android.Enabled {
 		gorush.PushConf.Android.Enabled = opts.Android.Enabled
 		req := gorush.PushNotification{
-			Tokens:   []string{token},
 			Platform: gorush.PlatformAndroid,
 			Message:  message,
 			Title:    title,
@@ -169,7 +168,6 @@ func main() {
 
 		gorush.PushConf.Ios.Enabled = opts.Ios.Enabled
 		req := gorush.PushNotification{
-			Tokens:   []string{token},
 			Platform: gorush.PlatformIos,
 			Message:  message,
 			Title:    title,

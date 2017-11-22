@@ -1,12 +1,12 @@
 package gorush
 
 import (
-	"sync"
-	"encoding/json"
-	"net/http"
-	"io/ioutil"
 	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
+	"net/http"
+	"sync"
 )
 
 // InitWorkers for initialize all workers.
@@ -38,7 +38,7 @@ func startWorker() {
 }
 
 func waitAndPerformCallback(callbackUrl string, count int, wg *sync.WaitGroup, log *[]LogPushEntry) {
-	if (wg != nil) {
+	if wg != nil {
 		wg.Wait()
 		reqBody, err := json.Marshal(gin.H{
 			"success": "ok",
@@ -65,11 +65,11 @@ func waitAndPerformCallback(callbackUrl string, count int, wg *sync.WaitGroup, l
 func queueNotification(req RequestPush) (int, []LogPushEntry) {
 	var count int
 	var doSync = PushConf.Core.Sync
-	if (req.Sync != nil) {
+	if req.Sync != nil {
 		doSync = *req.Sync
 	}
 	var callbackUrl = PushConf.Core.CallbackUrl
-	if (req.CallbackUrl != nil) {
+	if req.CallbackUrl != nil {
 		callbackUrl = *req.CallbackUrl
 	}
 	wg := sync.WaitGroup{}
