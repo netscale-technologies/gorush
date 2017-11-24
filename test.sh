@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PORT=10421
-VERSION="/push/v1"
+PORT=10422
+VERSION="/push/v2"
 
 curl \
 	-XGET \
