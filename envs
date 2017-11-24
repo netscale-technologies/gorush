@@ -1,0 +1,9 @@
+# Scripts configuration
+#PLATFORM_IP="$( ipconfig getifaddr en0 )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DEPLOY_ACCOUNT="jaraxasoftware"
+EXECUTABLE="gorush"
+IMAGE_FILE="${DEPLOY_ACCOUNT}_${EXECUTABLE}"
+CONTAINER="js-${EXECUTABLE}
+PORT=10422
+VERSION="/push/v2"

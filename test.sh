@@ -1,7 +1,7 @@
 #!/bin/bash
 
-PORT=10422
-VERSION="/push/v2"
+# Import environment config
+.envs
 
 curl \
 	-XGET \

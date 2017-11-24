@@ -243,6 +243,7 @@ docker_load:
 
 docker_zip_only:
 	cp $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz scripts/$(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz;
+	cp envs scripts/envs;
 	cp build.sh scripts/build.sh;
 	cp remove.sh scripts/remove.sh;
 	cp start.sh scripts/start.sh;

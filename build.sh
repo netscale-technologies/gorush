@@ -1,6 +1,7 @@
 #!/bin/bash
 
-IMAGE_FILE="jaraxasoftware_gorush"
+# Import environment config
+.envs
 
 # Load a docker image from a .tar.gz file 
 gunzip < $IMAGE_FILE.tar.gz | docker load

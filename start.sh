@@ -1,11 +1,7 @@
 #!/bin/bash
 
-#PLATFORM_IP="$( ipconfig getifaddr en0 )"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-DEPLOY_ACCOUNT="jaraxasoftware"
-EXECUTABLE="gorush"
-CONTAINER=js-gorush
-PORT=10422
+# Import environment config
+.envs
 
 # Remove previous container
 docker rm $CONTAINER > /dev/null 2>&1
