@@ -1,11 +1,9 @@
+include ./envs
+
 DIST := dist
-EXECUTABLE := gorush
 
 GO ?= go
-DEPLOY_ACCOUNT := jaraxasoftware
-DEPLOY_IMAGE := $(EXECUTABLE)
-CONTAINER := js-gorush
-PORT := 8088
+INTERNAL_PORT := 8088
 GOFMT ?= gofmt "-s"
 EXTERNAL_TOOLS=\
 	github.com/mitchellh/gox \
@@ -96,7 +94,7 @@ unconvert:
 # Install from source.
 install: $(SOURCES)
 	$(GO) install -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)'
-	@echo "==> Installed gorush ${GOPATH}/bin/gorush"
+	@echo "==> Installed $(EXECUTABLE) ${GOPATH}/bin/$(EXECUTABLE)"
 .PHONY: install
 
 # build from source
@@ -208,15 +206,15 @@ docker_rm: docker_stop
 
 docker_rmi: docker_rm
 ifeq ($(tag),)
-	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(EXECUTABLE)) -eq 1 ]; then \
-		docker rmi $(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest > /dev/null 2>&1; \
+	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE)) -eq 1 ]; then \
+		docker rmi $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest > /dev/null 2>&1; \
 	fi;
 	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
 		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
 	fi
 else
-	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(EXECUTABLE)) -eq 1 ]; then \
-		docker rmi $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag) > /dev/null 2>&1; \
+	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE)) -eq 1 ]; then \
+		docker rmi $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):$(tag) > /dev/null 2>&1; \
 	fi;
 	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
 		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
@@ -225,24 +223,26 @@ endif
 
 docker_run: docker_rm
 	docker run -ti -d --name $(CONTAINER) --restart always \
-	-p ${PORT}:8088 \
+	-p ${INTERNAL_PORT}:8088 \
 	-v ${CURDIR}/config:/config:ro \
-	$(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest /gorush -c /config/config.yml
+	$(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest /$(EXECUTABLE) -c /config/config.yml
 
 docker_test:
 	curl \
 	-XGET \
 	-H "Accept: application/json" \
- 	"localhost:$(PORT)/api/stat/go" | python -mjson.tool
+ 	"localhost:$(INTERNAL_PORT)/stats/test" | python -mjson.tool
 
 docker_save:
-	docker save $(DEPLOY_ACCOUNT)/$(EXECUTABLE) | gzip > $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz
+	docker save $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE) | gzip > $(IMAGE_FILE).tar.gz
 
 docker_load:
-	gunzip < $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz | docker load
+	gunzip < $(IMAGE_FILE).tar.gz | docker load
 
 docker_zip_only:
-	cp $(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz scripts/$(DEPLOY_ACCOUNT)_$(EXECUTABLE).tar.gz;
+	cp $(IMAGE_FILE).tar.gz scripts/$(IMAGE_FILE).tar.gz;
+	rm scripts/envs;
+	rm scripts/*.sh;
 	cp envs scripts/envs;
 	cp build.sh scripts/build.sh;
 	cp remove.sh scripts/remove.sh;
@@ -250,11 +250,11 @@ docker_zip_only:
 	cp stop.sh scripts/stop.sh;
 	cp test.sh scripts/test.sh;
 	rm -f scripts/.DS_Store;
-	rm -f gorush.zip;
-	cd scripts; zip -r -X ../gorush.zip .
+	rm -f $(EXECUTABLE).zip;
+	cd scripts; zip -r -X ../$(EXECUTABLE).zip .
 
 docker_zip: clean docker_rmi docker_build docker_image docker_run docker_test docker_save docker_rmi docker_zip_only
-	# !IMPORTANT: Check the test output before using gorush.zip file
+	# !IMPORTANT: Check the test output before using $(EXECUTABLE).zip file
 
 clean:
 	$(GO) clean -x -i ./...
@@ -263,13 +263,13 @@ clean:
 	find . -name *.db -delete
 	-rm -rf bin dist .cover
 
-rpc/example/node/gorush_*_pb.js: rpc/proto/gorush.proto
-	protoc -I rpc/proto rpc/proto/gorush.proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
+rpc/example/node/$(EXECUTABLE)_*_pb.js: rpc/proto/$(EXECUTABLE).proto
+	protoc -I rpc/proto rpc/proto/$(EXECUTABLE).proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
 
-rpc/proto/gorush.pb.go: rpc/proto/gorush.proto
-	protoc -I rpc/proto rpc/proto/gorush.proto --go_out=plugins=grpc:rpc/proto
+rpc/proto/$(EXECUTABLE).pb.go: rpc/proto/$(EXECUTABLE).proto
+	protoc -I rpc/proto rpc/proto/$(EXECUTABLE).proto --go_out=plugins=grpc:rpc/proto
 
-generate_proto: rpc/proto/gorush.pb.go rpc/example/node/gorush_*_pb.js
+generate_proto: rpc/proto/$(EXECUTABLE).pb.go rpc/example/node/$(EXECUTABLE)_*_pb.js
 
 version:
 	@echo $(VERSION)

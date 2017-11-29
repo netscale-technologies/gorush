@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Import environment config
-.envs
+. envs
+URL="localhost:${PORT}${VERSION_PATH}/stats/test"
 
 curl \
 	-XGET \
 	-H "Accept: application/json" \
- 	"localhost:$PORT$VERSION/stats/test" | python -mjson.tool
+ 	$URL | python -mjson.tool
