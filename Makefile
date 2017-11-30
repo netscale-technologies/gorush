@@ -1,8 +1,10 @@
 include ./envs
 
+DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 DIST := dist
 
 GO ?= go
+EXECUTABLE_BIN ?= gorush
 INTERNAL_PORT := 8088
 GOFMT ?= gofmt "-s"
 EXTERNAL_TOOLS=\
@@ -94,14 +96,14 @@ unconvert:
 # Install from source.
 install: $(SOURCES)
 	$(GO) install -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)'
-	@echo "==> Installed $(EXECUTABLE) ${GOPATH}/bin/$(EXECUTABLE)"
+	@echo "==> Installed $(EXECUTABLE_BIN) ${GOPATH}/bin/$(EXECUTABLE_BIN)"
 .PHONY: install
 
 # build from source
-build: $(EXECUTABLE)
+build: $(EXECUTABLE_BIN)
 .PHONY: build
 
-$(EXECUTABLE): $(SOURCES)
+$(EXECUTABLE_BIN): $(SOURCES)
 	$(GO) build -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o bin/$@
 
 .PHONY: misspell-check
@@ -164,22 +166,22 @@ release-build:
 	@hash gox > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) get -u github.com/mitchellh/gox; \
 	fi
-	gox -os="$(TARGETS)" -arch="$(ARCHS)" -tags="$(TAGS)" -ldflags="$(EXTLDFLAGS)-s -w $(LDFLAGS)" -output="$(DIST)/binaries/$(EXECUTABLE)-$(VERSION)-{{.OS}}-{{.Arch}}"
+	gox -os="$(TARGETS)" -arch="$(ARCHS)" -tags="$(TAGS)" -ldflags="$(EXTLDFLAGS)-s -w $(LDFLAGS)" -output="$(DIST)/binaries/$(EXECUTABLE_BIN)-$(VERSION)-{{.OS}}-{{.Arch}}"
 
 release-copy:
-	$(foreach file,$(wildcard $(DIST)/binaries/$(EXECUTABLE)-*),cp $(file) $(DIST)/release/$(notdir $(file));)
+	$(foreach file,$(wildcard $(DIST)/binaries/$(EXECUTABLE_BIN)-*),cp $(file) $(DIST)/release/$(notdir $(file));)
 
 release-check:
-	cd $(DIST)/release; $(foreach file,$(wildcard $(DIST)/release/$(EXECUTABLE)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
+	cd $(DIST)/release; $(foreach file,$(wildcard $(DIST)/release/$(EXECUTABLE_BIN)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
 
 docker_build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)
 
 docker_build_arm64:
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE)-arm64
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)-arm64
 
 docker_build_arm:
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE)-arm
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)-arm
 
 docker_image:
 	docker build -t $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE) -f Dockerfile .
@@ -191,8 +193,8 @@ ifeq ($(tag),)
 	@echo "Usage: make $@ tag=<tag>"
 	@exit 1
 endif
-	docker tag $(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
-	docker push $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
+	docker tag $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):latest $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):$(tag)
+	docker push $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):$(tag)
 
 docker_stop:
 	@if [ $(shell docker ps -a | grep -ci $(CONTAINER)) -eq 1 ]; then \
@@ -211,6 +213,9 @@ ifeq ($(tag),)
 	fi;
 	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
 		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
+	fi;
+	@if [ $(shell docker images | grep -ci plugins/base) -eq 1 ]; then \
+		docker rmi plugins/base:multiarch > /dev/null 2>&1; \
 	fi
 else
 	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE)) -eq 1 ]; then \
@@ -218,14 +223,17 @@ else
 	fi;
 	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
 		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
+	fi;
+	@if [ $(shell docker images | grep -ci plugins/base) -eq 1 ]; then \
+		docker rmi plugins/base:multiarch > /dev/null 2>&1; \
 	fi
 endif
 
 docker_run: docker_rm
 	docker run -ti -d --name $(CONTAINER) --restart always \
-	-p ${INTERNAL_PORT}:8088 \
-	-v ${CURDIR}/config:/config:ro \
-	$(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest /$(EXECUTABLE) -c /config/config.yml
+	-p $(INTERNAL_PORT):8088 \
+	-v $(DIR)/config:/config:ro \
+	$(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest -config "/config/config.yml"
 
 docker_test:
 	curl \
@@ -263,13 +271,13 @@ clean:
 	find . -name *.db -delete
 	-rm -rf bin dist .cover
 
-rpc/example/node/$(EXECUTABLE)_*_pb.js: rpc/proto/$(EXECUTABLE).proto
-	protoc -I rpc/proto rpc/proto/$(EXECUTABLE).proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
+rpc/example/node/$(EXECUTABLE_BIN)_*_pb.js: rpc/proto/$(EXECUTABLE_BIN).proto
+	protoc -I rpc/proto rpc/proto/$(EXECUTABLE_BIN).proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
 
-rpc/proto/$(EXECUTABLE).pb.go: rpc/proto/$(EXECUTABLE).proto
-	protoc -I rpc/proto rpc/proto/$(EXECUTABLE).proto --go_out=plugins=grpc:rpc/proto
+rpc/proto/$(EXECUTABLE_BIN).pb.go: rpc/proto/$(EXECUTABLE_BIN).proto
+	protoc -I rpc/proto rpc/proto/$(EXECUTABLE_BIN).proto --go_out=plugins=grpc:rpc/proto
 
-generate_proto: rpc/proto/$(EXECUTABLE).pb.go rpc/example/node/$(EXECUTABLE)_*_pb.js
+generate_proto: rpc/proto/$(EXECUTABLE_BIN).pb.go rpc/example/node/$(EXECUTABLE_BIN)_*_pb.js
 
 version:
 	@echo $(VERSION)

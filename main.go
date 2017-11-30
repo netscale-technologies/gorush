@@ -71,11 +71,14 @@ func main() {
 	var err error
 
 	// set default parameters.
+	log.Printf("Loading config from: '%v'", configFile)
 	gorush.PushConf, err = config.LoadConf(configFile)
 	if err != nil {
 		log.Printf("Load yaml config file error: '%v'", err)
 
 		return
+	} else {
+		log.Printf("Config loaded: '%v'", gorush.PushConf)
 	}
 
 	if opts.Ios.KeyPath != "" {
