@@ -67,6 +67,7 @@ Retry:
 	for _, subscription := range req.Subscriptions {
 		notification := getWebNotification(req, &subscription)
 		response, err := WebClient.Push(notification, apiKey)
+		webToken := "{\"endpoint\":\"" + subscription.Endpoint + "\",\"key\":\"" + subscription.Key + "\",\"auth\":\"" + subscription.Auth + "\"}"
 		if err != nil {
 			isError = true
 			failureCount++
@@ -74,7 +75,7 @@ Retry:
 			fmt.Println(err)
 			if doSync {
 				if response == nil {
-					req.AddLog(getLogPushEntry(FailedPush, subscription.Endpoint, req, err))
+					req.AddLog(getLogPushEntry(FailedPush, webToken, req, err))
 				} else {
 					var errorText = response.Body
 					var browser web.Browser
@@ -92,13 +93,13 @@ Retry:
 						}
 					}
 					var errorObj = errors.New(errorText)
-					req.AddLog(getLogPushEntry(FailedPush, subscription.Endpoint, req, errorObj))
+					req.AddLog(getLogPushEntry(FailedPush, webToken, req, errorObj))
 				}
 			}
 		} else {
 			isError = false
 			successCount++
-			LogPush(SucceededPush, subscription.Endpoint, req, nil)
+			LogPush(SucceededPush, webToken, req, nil)
 		}
 	}
 
