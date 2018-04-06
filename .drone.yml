@@ -10,21 +10,21 @@ clone:
 
 pipeline:
   deps:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
     group: golang
     commands:
       - make deps
       - make embedmd
 
   lint:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
     group: golang
     commands:
       - make vet
       - make lint
 
   vendor:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
     group: golang
     commands:
       - make test-vendor
@@ -32,25 +32,35 @@ pipeline:
       - make fmt-check
 
   build_linux_amd64:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing
+    pull: true
     group: golang
     commands:
-      - make docker_build
+      - make build_linux_amd64
+
+  build_linux_i386:
+    image: appleboy/golang-testing:1.10.0
+    pull: true
+    group: golang
+    commands:
+      - make build_linux_i386
 
   build_linux_arm64:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
+    pull: true
     group: golang
     commands:
-      - make docker_build_arm64
+      - make build_linux_arm64
 
   build_linux_arm:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
+    pull: true
     group: golang
     commands:
-      - make docker_build_arm
+      - make build_linux_arm
 
   coverage:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
     group: golang
     secrets: [ android_test_token, android_api_key ]
     commands:
@@ -65,83 +75,74 @@ pipeline:
       event: [ push, pull_request ]
 
   release:
-    image: appleboy/golang-testing:1.9.2
+    image: appleboy/golang-testing:1.10.0
     pull: true
     commands:
       - make release
     when:
       event: [ tag ]
-      ref: [ refs/tags/* ]
 
   publish_linux_amd64:
     image: plugins/docker
-    group: publish
-    repo: ${DRONE_REPO}
-    tags: [ 'latest' ]
-    secrets: [ docker_username, docker_password ]
-    when:
-      event: [ push ]
-      branch: [ master ]
-      local: false
-
-  publish_linux_arm:
-    image: plugins/docker
-    group: publish
-    repo: ${DRONE_REPO}
-    tags: [ linux-arm ]
-    dockerfile: Dockerfile.arm
-    secrets: [ docker_username, docker_password ]
-    when:
-      event: [ push ]
-      branch: [ master ]
-      local: false
-
-  publish_linux_arm64:
-    image: plugins/docker
-    group: publish
-    repo: ${DRONE_REPO}
-    tags: [ linux-arm64 ]
-    dockerfile: Dockerfile.arm64
-    secrets: [ docker_username, docker_password ]
-    when:
-      event: [ push ]
-      branch: [ master ]
-      local: false
-
-  publish_linux_amd64:
-    image: plugins/docker
-    group: tag
-    repo: ${DRONE_REPO}
-    tags: [ '${DRONE_TAG}' ]
-    secrets: [ docker_username, docker_password ]
     group: release
+    pull: true
+    secrets: [ docker_username, docker_password ]
+    default_tags: true
+    repo: ${DRONE_REPO}
     when:
-      event: [ tag ]
-      ref: [ refs/tags/* ]
+      event: [ push, tag ]
+      local: false
+
+  publish_linux_alpine:
+    image: plugins/docker
+    group: release
+    pull: true
+    dockerfile: Dockerfile.alpine
+    secrets: [ docker_username, docker_password ]
+    default_tags: true
+    default_suffix: alpine
+    repo: ${DRONE_REPO}
+    when:
+      event: [ push, tag ]
+      local: false
+
+  publish_linux_i386:
+    image: plugins/docker
+    group: release
+    pull: true
+    dockerfile: Dockerfile.i386
+    secrets: [ docker_username, docker_password ]
+    default_tags: true
+    default_suffix: i386
+    repo: ${DRONE_REPO}
+    when:
+      event: [ push, tag ]
       local: false
 
   publish_linux_arm:
     image: plugins/docker
-    group: tag
-    repo: ${DRONE_REPO}
-    tags: [ linux-arm, 'linux-arm-${DRONE_TAG}' ]
+    group: release
+    pull: true
     dockerfile: Dockerfile.arm
     secrets: [ docker_username, docker_password ]
+    default_tags: true
+    default_suffix: arm
+    repo: ${DRONE_REPO}
     when:
-      event: [ tag ]
-      ref: [ refs/tags/* ]
+      event: [ push, tag ]
       local: false
 
   publish_linux_arm64:
     image: plugins/docker
-    group: tag
-    repo: ${DRONE_REPO}
-    tags: [ linux-arm64, 'linux-arm64-${DRONE_TAG}' ]
+    group: release
+    pull: true
     dockerfile: Dockerfile.arm64
     secrets: [ docker_username, docker_password ]
+    default_tags: true
+    default_suffix: arm64
+    repo: ${DRONE_REPO}
     when:
-      event: [ tag ]
-      ref: [ refs/tags/* ]
+      event: [ push, tag ]
       local: false
 
   release_tag:
@@ -152,7 +153,6 @@ pipeline:
       - dist/release/*
     when:
       event: [ tag ]
-      ref: [ refs/tags/* ]
       local: false
 
   discord:

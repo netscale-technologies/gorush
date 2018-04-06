@@ -23,6 +23,8 @@ core:
   ssl: false
   cert_path: "cert.pem"
   key_path: "key.pem"
+  cert_base64: ""
+  key_base64: ""
   http_proxy: "" # only working for FCM server
   callback_url: ""
   pid:
@@ -55,10 +57,14 @@ android:
 ios:
   enabled: false
   key_path: "key.pem"
+  key_base64: "" # load iOS key from base64 input
+  key_type: "pem" # could be pem, p12 or p8 type
   password: "" # certificate password, default as empty string.
   production: false
   voip_enabled: false
   voip_key_path: "key.pem"
+  voip_key_base64: "" # load iOS key from base64 input
+  voip_key_type: "pem" # could be pem, p12 or p8 type
   voip_password: "" # certificate password, default as empty string.
   voip_production: false
   max_retry: 0 # resend fail notification, default value zero is disabled
@@ -118,6 +124,8 @@ type SectionCore struct {
 	SSL             bool           `yaml:"ssl"`
 	CertPath        string         `yaml:"cert_path"`
 	KeyPath         string         `yaml:"key_path"`
+	CertBase64      string         `yaml:"cert_base64"`
+	KeyBase64       string         `yaml:"key_base64"`
 	HTTPProxy       string         `yaml:"http_proxy"`
 	CallbackUrl     string         `yaml:"callback_url"`
 	PID             SectionPID     `yaml:"pid"`
@@ -153,10 +161,14 @@ type SectionAndroid struct {
 type SectionIos struct {
 	Enabled        bool   `yaml:"enabled"`
 	KeyPath        string `yaml:"key_path"`
+	KeyBase64      string `yaml:"key_base64"`
+	KeyType        string `yaml:"key_type"`
 	Password       string `yaml:"password"`
 	Production     bool   `yaml:"production"`
 	VoipEnabled    bool   `yaml:"voip_enabled"`
 	VoipKeyPath    string `yaml:"voip_key_path"`
+	VoipKeyBase64  string `yaml:"key_base64"`
+	VoipKeyType    string `yaml:"key_type"`
 	VoipPassword   string `yaml:"voip_password"`
 	VoipProduction bool   `yaml:"voip_production"`
 	MaxRetry       int    `yaml:"max_retry"`
@@ -270,6 +282,8 @@ func LoadConf(confPath string) (ConfYaml, error) {
 	conf.Core.SSL = viper.GetBool("core.ssl")
 	conf.Core.CertPath = viper.GetString("core.cert_path")
 	conf.Core.KeyPath = viper.GetString("core.key_path")
+	conf.Core.CertBase64 = viper.GetString("core.cert_base64")
+	conf.Core.KeyBase64 = viper.GetString("core.key_base64")
 	conf.Core.MaxNotification = int64(viper.GetInt("core.max_notification"))
 	conf.Core.HTTPProxy = viper.GetString("core.http_proxy")
 	conf.Core.CallbackUrl = viper.GetString("core.callback_url")
@@ -297,10 +311,14 @@ func LoadConf(confPath string) (ConfYaml, error) {
 	// iOS
 	conf.Ios.Enabled = viper.GetBool("ios.enabled")
 	conf.Ios.KeyPath = viper.GetString("ios.key_path")
+	conf.Ios.KeyBase64 = viper.GetString("ios.key_base64")
+	conf.Ios.KeyType = viper.GetString("ios.key_type")
 	conf.Ios.Password = viper.GetString("ios.password")
 	conf.Ios.Production = viper.GetBool("ios.production")
 	conf.Ios.VoipEnabled = viper.GetBool("ios.voip_enabled")
 	conf.Ios.VoipKeyPath = viper.GetString("ios.voip_key_path")
+	conf.Ios.VoipKeyBase64 = viper.GetString("ios.voip_key_base64")
+	conf.Ios.VoipKeyType = viper.GetString("ios.voip_key_type")
 	conf.Ios.VoipPassword = viper.GetString("ios.voip_password")
 	conf.Ios.VoipProduction = viper.GetBool("ios.voip_production")
 	conf.Ios.MaxRetry = viper.GetInt("ios.max_retry")

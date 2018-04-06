@@ -90,6 +90,7 @@ type PushNotification struct {
 	Topic          string   `json:"topic,omitempty"`
 	Badge          *int     `json:"badge,omitempty"`
 	Category       string   `json:"category,omitempty"`
+	ThreadID       string   `json:"thread-id,omitempty"`
 	URLArgs        []string `json:"url-args,omitempty"`
 	Alert          Alert    `json:"alert,omitempty"`
 	MutableContent bool     `json:"mutable-content,omitempty"`
@@ -193,24 +194,28 @@ func CheckPushConf() error {
 	}
 
 	if PushConf.Ios.Enabled {
-		if PushConf.Ios.KeyPath == "" {
-			return errors.New("Missing iOS certificate path")
+		if PushConf.Ios.KeyPath == "" && PushConf.Ios.KeyBase64 == "" {
+			return errors.New("Missing iOS certificate key")
 		}
 
 		// check certificate file exist
-		if _, err := os.Stat(PushConf.Ios.KeyPath); os.IsNotExist(err) {
-			return errors.New("certificate file does not exist")
+		if PushConf.Ios.KeyPath != "" {
+			if _, err := os.Stat(PushConf.Ios.KeyPath); os.IsNotExist(err) {
+				return errors.New("certificate file does not exist")
+			}
 		}
 	}
 
 	if PushConf.Ios.VoipEnabled {
-		if PushConf.Ios.VoipKeyPath == "" {
+		if PushConf.Ios.VoipKeyPath == "" && PushConf.Ios.VoipKeyBase64 == "" {
 			return errors.New("Missing VoIP iOS certificate path")
 		}
 
 		// check certificate file exist
-		if _, err := os.Stat(PushConf.Ios.VoipKeyPath); os.IsNotExist(err) {
-			return errors.New("VoIP certificate file does not exist")
+		if PushConf.Ios.VoipKeyPath != "" {
+			if _, err := os.Stat(PushConf.Ios.VoipKeyPath); os.IsNotExist(err) {
+				return errors.New("VoIP certificate file does not exist")
+			}
 		}
 	}
 
