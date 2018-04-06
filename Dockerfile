@@ -7,7 +7,11 @@ LABEL org.label-schema.vendor="Bo-Yi Wu"
 LABEL org.label-schema.schema-version="1.0"
 LABEL maintainer="Bo-Yi Wu <appleboy.tw@gmail.com>"
 
-ADD bin/gorush /
+ADD release/linux/amd64/gorush /bin/
 
 EXPOSE 8088 9000
-ENTRYPOINT ["/gorush"]
+
+HEALTHCHECK --start-period=2s --interval=10s --timeout=5s \
+  CMD ["/bin/gorush", "--ping"]
+
+ENTRYPOINT ["/bin/gorush"]

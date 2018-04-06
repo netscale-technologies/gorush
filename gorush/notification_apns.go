@@ -3,6 +3,7 @@ package gorush
 import (
 	"crypto/ecdsa"
 	"crypto/tls"
+	"encoding/base64"
 	"errors"
 	"path/filepath"
 	"time"
@@ -19,23 +20,51 @@ func InitAPNSClient() error {
 		var err error
 		var authKey *ecdsa.PrivateKey
 		var certificateKey tls.Certificate
-		ext := filepath.Ext(PushConf.Ios.KeyPath)
+		var ext string
 
-		switch ext {
-		case ".p12":
-			certificateKey, err = certificate.FromP12File(PushConf.Ios.KeyPath, PushConf.Ios.Password)
-		case ".pem":
-			certificateKey, err = certificate.FromPemFile(PushConf.Ios.KeyPath, PushConf.Ios.Password)
-		case ".p8":
-			authKey, err = token.AuthKeyFromFile(PushConf.Ios.KeyPath)
-		default:
-			err = errors.New("wrong certificate key extension")
-		}
+		if PushConf.Ios.KeyPath != "" {
+			ext = filepath.Ext(PushConf.Ios.KeyPath)
 
-		if err != nil {
-			LogError.Error("Cert Error:", err.Error())
+			switch ext {
+			case ".p12":
+				certificateKey, err = certificate.FromP12File(PushConf.Ios.KeyPath, PushConf.Ios.Password)
+			case ".pem":
+				certificateKey, err = certificate.FromPemFile(PushConf.Ios.KeyPath, PushConf.Ios.Password)
+			case ".p8":
+				authKey, err = token.AuthKeyFromFile(PushConf.Ios.KeyPath)
+			default:
+				err = errors.New("wrong certificate key extension")
+			}
 
-			return err
+			if err != nil {
+				LogError.Error("Cert Error:", err.Error())
+
+				return err
+			}
+		} else if PushConf.Ios.KeyBase64 != "" {
+			ext = "." + PushConf.Ios.KeyType
+			key, err := base64.StdEncoding.DecodeString(PushConf.Ios.KeyBase64)
+			if err != nil {
+				LogError.Error("base64 decode error:", err.Error())
+
+				return err
+			}
+			switch ext {
+			case ".p12":
+				certificateKey, err = certificate.FromP12Bytes(key, PushConf.Ios.Password)
+			case ".pem":
+				certificateKey, err = certificate.FromPemBytes(key, PushConf.Ios.Password)
+			case ".p8":
+				authKey, err = token.AuthKeyFromBytes(key)
+			default:
+				err = errors.New("wrong certificate key type")
+			}
+
+			if err != nil {
+				LogError.Error("Cert Error:", err.Error())
+
+				return err
+			}
 		}
 
 		if ext == ".p8" && PushConf.Ios.KeyID != "" && PushConf.Ios.TeamID != "" {
@@ -56,6 +85,79 @@ func InitAPNSClient() error {
 				ApnsClient = apns2.NewClient(certificateKey).Production()
 			} else {
 				ApnsClient = apns2.NewClient(certificateKey).Development()
+			}
+		}
+	}
+
+	if PushConf.Ios.VoipEnabled {
+		var err error
+		var authKey *ecdsa.PrivateKey
+		var certificateKey tls.Certificate
+		var ext string
+
+		if PushConf.Ios.VoipKeyPath != "" {
+			ext = filepath.Ext(PushConf.Ios.VoipKeyPath)
+
+			switch ext {
+			case ".p12":
+				certificateKey, err = certificate.FromP12File(PushConf.Ios.VoipKeyPath, PushConf.Ios.VoipPassword)
+			case ".pem":
+				certificateKey, err = certificate.FromPemFile(PushConf.Ios.VoipKeyPath, PushConf.Ios.VoipPassword)
+			case ".p8":
+				authKey, err = token.AuthKeyFromFile(PushConf.Ios.VoipKeyPath)
+			default:
+				err = errors.New("wrong certificate key extension")
+			}
+
+			if err != nil {
+				LogError.Error("Cert Error:", err.Error())
+
+				return err
+			}
+		} else if PushConf.Ios.VoipKeyBase64 != "" {
+			ext = "." + PushConf.Ios.VoipKeyType
+			key, err := base64.StdEncoding.DecodeString(PushConf.Ios.VoipKeyBase64)
+			if err != nil {
+				LogError.Error("base64 decode error:", err.Error())
+
+				return err
+			}
+			switch ext {
+			case ".p12":
+				certificateKey, err = certificate.FromP12Bytes(key, PushConf.Ios.VoipPassword)
+			case ".pem":
+				certificateKey, err = certificate.FromPemBytes(key, PushConf.Ios.VoipPassword)
+			case ".p8":
+				authKey, err = token.AuthKeyFromBytes(key)
+			default:
+				err = errors.New("wrong certificate key type")
+			}
+
+			if err != nil {
+				LogError.Error("Cert Error:", err.Error())
+
+				return err
+			}
+		}
+
+		if ext == ".p8" && PushConf.Ios.KeyID != "" && PushConf.Ios.TeamID != "" {
+			token := &token.Token{
+				AuthKey: authKey,
+				// KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
+				KeyID: PushConf.Ios.KeyID,
+				// TeamID from developer account (View Account -> Membership)
+				TeamID: PushConf.Ios.TeamID,
+			}
+			if PushConf.Ios.VoipProduction {
+				VoipApnsClient = apns2.NewTokenClient(token).Production()
+			} else {
+				VoipApnsClient = apns2.NewTokenClient(token).Development()
+			}
+		} else {
+			if PushConf.Ios.VoipProduction {
+				VoipApnsClient = apns2.NewClient(certificateKey).Production()
+			} else {
+				VoipApnsClient = apns2.NewClient(certificateKey).Development()
 			}
 		}
 	}
@@ -166,6 +268,10 @@ func GetIOSNotification(req PushNotification) *apns2.Notification {
 		payload.URLArgs(req.URLArgs)
 	}
 
+	if len(req.ThreadID) > 0 {
+		payload.ThreadID(req.ThreadID)
+	}
+
 	for k, v := range req.Data {
 		payload.Custom(k, v)
 	}
@@ -178,15 +284,29 @@ func GetIOSNotification(req PushNotification) *apns2.Notification {
 }
 
 func getApnsClient(req PushNotification) (client *apns2.Client) {
-	if req.Production {
-		client = ApnsClient.Production()
-	} else if req.Development {
-		client = ApnsClient.Development()
-	} else {
-		if PushConf.Ios.Production {
-			client = ApnsClient.Production()
+	if req.Voip {
+		if req.Production {
+			client = VoipApnsClient.Production()
+		} else if req.Development {
+			client = VoipApnsClient.Development()
 		} else {
+			if PushConf.Ios.VoipProduction {
+				client = VoipApnsClient.Production()
+			} else {
+				client = VoipApnsClient.Development()
+			}
+		}
+	} else {
+		if req.Production {
+			client = ApnsClient.Production()
+		} else if req.Development {
 			client = ApnsClient.Development()
+		} else {
+			if PushConf.Ios.Production {
+				client = ApnsClient.Production()
+			} else {
+				client = ApnsClient.Development()
+			}
 		}
 	}
 	return

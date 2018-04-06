@@ -4,9 +4,11 @@ A push notification micro server using [Gin](https://github.com/gin-gonic/gin) f
 
 [![GoDoc](https://godoc.org/github.com/appleboy/gorush?status.svg)](https://godoc.org/github.com/appleboy/gorush)
 [![Build Status](http://drone.wu-boy.com/api/badges/appleboy/gorush/status.svg)](http://drone.wu-boy.com/appleboy/gorush)
+[![Build status](https://ci.appveyor.com/api/projects/status/ka4hvplssp1q2s5u?svg=true)](https://ci.appveyor.com/project/appleboy/gorush-fp5dh)
 [![codecov](https://codecov.io/gh/appleboy/gorush/branch/master/graph/badge.svg)](https://codecov.io/gh/appleboy/gorush)
 [![Go Report Card](https://goreportcard.com/badge/github.com/appleboy/gorush)](https://goreportcard.com/report/github.com/appleboy/gorush)
 [![codebeat badge](https://codebeat.co/badges/0a4eff2d-c9ac-46ed-8fd7-b59942983390)](https://codebeat.co/projects/github-com-appleboy-gorush)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/c82e0ed283474c5686d705ce64d004f7)](https://www.codacy.com/app/appleboy/gorush?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=appleboy/gorush&amp;utm_campaign=Badge_Grade)
 [![Docker Pulls](https://img.shields.io/docker/pulls/appleboy/gorush.svg)](https://hub.docker.com/r/appleboy/gorush/)
 [![](https://images.microbadger.com/badges/image/appleboy/gorush.svg)](https://microbadger.com/images/appleboy/gorush "Get your own image badge on microbadger.com")
 [![Release](https://github-release-version.herokuapp.com/github/appleboy/gorush/release.svg?style=flat)](https://github.com/appleboy/gorush/releases/latest)
@@ -36,7 +38,10 @@ A push notification micro server using [Gin](https://github.com/gin-gonic/gin) f
 - [Run gRPC service](#run-grpc-service)
 - [Run gorush in Docker](#run-gorush-in-docker)
 - [Run gorush in Kubernetes](#run-gorush-in-kubernetes)
+- [Run gorush in AWS Lambda](#run-gorush-in-aws-lambda)
 - [License](#license)
+
+<a href="https://www.buymeacoffee.com/appleboy" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 ## Support Platform
 
@@ -58,13 +63,14 @@ A push notification micro server using [Gin](https://github.com/gin-gonic/gin) f
 * Support `/api/stat/app` show notification success and failure counts.
 * Support `/api/config` show your [YAML](https://en.wikipedia.org/wiki/YAML) config.
 * Support store app stat to memory, [Redis](http://redis.io/), [BoltDB](https://github.com/boltdb/bolt), [BuntDB](https://github.com/tidwall/buntdb) or [LevelDB](https://github.com/syndtr/goleveldb).
-* Support `p12` or `pem` formtat of iOS certificate file.
+* Support `p8`, `p12` or `pem` format of iOS certificate file.
 * Support `/sys/stats` show response time, status code count, etc.
 * Support for HTTP proxy to Google server (FCM).
 * Support retry send notification if server response is fail.
 * Support expose [prometheus](https://prometheus.io/) metrics.
 * Support install TLS certificates from [Let's Encrypt](https://letsencrypt.org/) automatically.
 * Support send notification through [RPC](https://en.wikipedia.org/wiki/Remote_procedure_call) protocol, we use [gRPC](https://grpc.io/) as default framework.
+* Support running in Docker, [Kubernetes](https://kubernetes.io/) or [AWS Lambda](https://aws.amazon.com/lambda) ([Native Support in Golang](https://aws.amazon.com/blogs/compute/announcing-go-support-for-aws-lambda/))
 
 See the default [YAML config example](config/config.yml):
 
@@ -82,6 +88,8 @@ core:
   ssl: false
   cert_path: "cert.pem"
   key_path: "key.pem"
+  cert_base64: ""
+  key_base64: ""
   http_proxy: "" # only working for FCM server
   pid:
     enabled: false
@@ -113,11 +121,15 @@ android:
 ios:
   enabled: false
   key_path: "key.pem"
+  key_base64: "" # load iOS key from base64 input
+  key_type: "pem" # could be pem, p12 or p8 type
   password: "" # certificate password, default as empty string.
   production: false
   max_retry: 0 # resend fail notification, default value zero is disabled
   voip_enabled: false
   voip_key_path: "voipkey.pem"
+  voip_key_base64: "" # load iOS key from base64 input
+  voip_key_type: "pem" # could be pem, p12 or p8 type
   voip_password: ""
   voip_production: false
   key_id: "" # KeyID from developer account (Certificates, Identifiers & Profiles -> Keys)
@@ -843,6 +855,16 @@ func main() {
 		Platform: 2,
 		Tokens:   []string{"1234567890"},
 		Message:  "test message",
+		Badge:    1,
+		Category: "test",
+		Sound:    "test",
+		Alert: &proto.Alert{
+			Title:    "Test Title",
+			Body:     "Test Alert Body",
+			Subtitle: "Test Alert Sub Title",
+			LocKey:   "Test loc key",
+			LocArgs:  []string{"test", "test"},
+		},
 	})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
@@ -865,12 +887,26 @@ function main() {
   var client = new services.GorushClient('localhost:9000',
     grpc.credentials.createInsecure());
   var request = new messages.NotificationRequest();
+  var alert = new messages.Alert();
   request.setPlatform(2);
   request.setTokensList(["1234567890"]);
   request.setMessage("Hello!!");
+  request.setTitle("hello2");
+  request.setBadge(2);
+  request.setCategory("mycategory");
+  request.setSound("sound")
+  alert.setTitle("title");
+  request.setAlert(alert);
+  request.setThreadid("threadID");
+  request.setContentavailable(false);
+  request.setMutablecontent(false);
   client.send(request, function (err, response) {
-    console.log('Success:', response.getSuccess());
-    console.log('Counts:', response.getCounts());
+    if(err) {
+      console.log(err);
+    } else {
+      console.log("Success:", response.getSuccess());
+      console.log("Counts:", response.getCounts());
+    }
   });
 }
 
@@ -909,6 +945,16 @@ func main() {
 		Platform: 2,
 		Tokens:   []string{"1234567890"},
 		Message:  "test message",
+		Badge:    1,
+		Category: "test",
+		Sound:    "test",
+		Alert: &proto.Alert{
+			Title:    "Test Title",
+			Body:     "Test Alert Body",
+			Subtitle: "Test Alert Sub Title",
+			LocKey:   "Test loc key",
+			LocArgs:  []string{"test", "test"},
+		},
 	})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
@@ -946,7 +992,7 @@ $ http -v --verify=no --json GET http://your.docker.host/api/stat/go
 
 ### Quick Start
 
-Create name space as `gorush` and configuration map:
+Create namespace as `gorush` as `gorush` and then your configuration map:
 
 ```sh
 $ kubectl create -f k8s/gorush-namespace.yaml
@@ -995,12 +1041,48 @@ $ kubectl create -f k8s/gorush-aws-alb-ingress.yaml
 ```sh
 $ kubectl delete -f k8s
 ```
+
+## Run gorush in AWS Lambda
+
+<img src="screenshot/lambda.png" />
+
+AWS excited to [announce Go as a supported language for AWS Lambda](https://aws.amazon.com/blogs/compute/announcing-go-support-for-aws-lambda/). You’re going to create an application that uses an [API Gateway](https://aws.amazon.com/apigateway) event source to create a simple Hello World RESTful API.
+
+### Build gorush binary
+
+Download source code first.
+
+```sh
+$ git clone https://github.com/appleboy/gorush.git
+$ cd gorush && make build_linux_lambda
+```
+
+you can see the binary file in `release/linux/lambda/` folder
+
+### Deploy gorush application
+
+we need to build a binary that will run on Linux, and ZIP it up into a deployment package.
+
+```sh
+$ zip deployment.zip release/linux/lambda/gorush
+```
+
+Upload the `deployment.zip` via web UI or you can try the [drone-lambda](https://github.com/appleboy/drone-lambda) as the following command. it will zip your binary file and upload to AWS Lambda automatically.
+
+```sh
+$ AWS_ACCESS_KEY_ID=YOUR_AWS_ACCESS_KEY_ID \
+  AWS_SECRET_ACCESS_KEY=YOUR_AWS_SECRET_ACCESS_KEY \
+  drone-lambda --region ap-southeast-1 \
+  --function-name gorush \
+  --source release/linux/lambda/gorush
+```
+
 ## Stargazers over time
 
 [![Stargazers over time](https://starcharts.herokuapp.com/appleboy/gorush.svg)](https://starcharts.herokuapp.com/appleboy/gorush)
 
 ## License
 
-Copyright 2017 Bo-Yi Wu [@appleboy](https://twitter.com/appleboy).
+Copyright 2018 Bo-Yi Wu [@appleboy](https://twitter.com/appleboy).
 
 Licensed under the MIT License.

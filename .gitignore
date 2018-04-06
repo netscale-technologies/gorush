@@ -25,7 +25,6 @@ _testmain.go
 
 gin-bin
 key.pem
-bin
 .DS_Store
 gorush/log/*.log
 gorush.db
@@ -34,7 +33,7 @@ gorush.db
 coverage.txt
 dist
 custom
-
+release
 scripts/*.sh
 scripts/*.tar.gz
 scripts/config/config.yml

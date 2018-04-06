@@ -1,15 +1,10 @@
-include ./envs
-
-DIR:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 DIST := dist
+EXECUTABLE := gorush
 
 GO ?= go
-EXECUTABLE_BIN ?= gorush
-INTERNAL_PORT := 8088
+DEPLOY_ACCOUNT := appleboy
+DEPLOY_IMAGE := $(EXECUTABLE)
 GOFMT ?= gofmt "-s"
-EXTERNAL_TOOLS=\
-	github.com/mitchellh/gox \
-	github.com/kardianos/govendor
 
 TARGETS ?= linux darwin windows
 ARCHS ?= amd64 386
@@ -20,6 +15,9 @@ TAGS ?=
 LDFLAGS ?= -X 'main.Version=$(VERSION)'
 TMPDIR := $(shell mktemp -d 2>/dev/null || mktemp -d -t 'tempdir')
 NODE_PROTOC_PLUGIN := $(shell which grpc_tools_node_protoc_plugin)
+GOVENDOR := $(GOPATH)/bin/govendor
+GOX := $(GOPATH)/bin/gox
+MISSPELL := $(GOPATH)/bin/misspell
 
 ifneq ($(shell uname), Darwin)
 	EXTLDFLAGS = -extldflags "-static" $(null)
@@ -47,12 +45,14 @@ ifeq ($(ANDROID_TEST_TOKEN),)
 endif
 	@echo "Already set ANDROID_API_KEY and ANDROID_TEST_TOKEN globale variable."
 
-# bootstrap the build by downloading additional tools
-bootstrap:
-	@for tool in  $(EXTERNAL_TOOLS) ; do \
-		echo "Installing/Updating $$tool" ; \
-		go get -u $$tool; \
-	done
+$(GOVENDOR):
+	$(GO) get -u github.com/kardianos/govendor
+
+$(GOX):
+	$(GO) get -u github.com/mitchellh/gox
+
+$(MISSPELL):
+	$(GO) get -u github.com/client9/misspell/cmd/misspell
 
 fmt:
 	$(GOFMT) -w $(GOFILES)
@@ -93,48 +93,37 @@ unconvert:
 	fi
 	for PKG in $(PACKAGES); do unconvert -v $$PKG || exit 1; done;
 
-# Install from source.
+.PHONY: install
 install: $(SOURCES)
 	$(GO) install -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)'
-	@echo "==> Installed $(EXECUTABLE_BIN) ${GOPATH}/bin/$(EXECUTABLE_BIN)"
-.PHONY: install
+	@echo "==> Installed gorush ${GOPATH}/bin/gorush"
 
-# build from source
-build: $(EXECUTABLE_BIN)
 .PHONY: build
+build: $(EXECUTABLE)
 
-$(EXECUTABLE_BIN): $(SOURCES)
-	$(GO) build -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o bin/$@
+$(EXECUTABLE): $(SOURCES)
+	$(GO) build -v -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/$@
 
 .PHONY: misspell-check
-misspell-check:
-	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/client9/misspell/cmd/misspell; \
-	fi
-	misspell -error $(GOFILES)
+misspell-check: $(MISSPELL)
+	$(MISSPELL) -error $(GOFILES)
 
 .PHONY: misspell
-misspell:
-	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/client9/misspell/cmd/misspell; \
-	fi
-	misspell -w $(GOFILES)
+misspell: $(MISSPELL)
+	$(MISSPELL) -w $(GOFILES)
 
 test: fmt-check
 	for PKG in $(PACKAGES); do $(GO) test -v -cover -coverprofile $$GOPATH/src/$$PKG/coverage.txt $$PKG || exit 1; done;
 
 .PHONY: test-vendor
-test-vendor:
-	@hash govendor > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/kardianos/govendor; \
-	fi
-	govendor list +unused | tee "$(TMPDIR)/wc-gitea-unused"
+test-vendor: $(GOVENDOR)
+	$(GOVENDOR) list +unused | tee "$(TMPDIR)/wc-gitea-unused"
 	[ $$(cat "$(TMPDIR)/wc-gitea-unused" | wc -l) -eq 0 ] || echo "Warning: /!\\ Some vendor are not used /!\\"
 
-	govendor list +outside | tee "$(TMPDIR)/wc-gitea-outside"
+	$(GOVENDOR) list +outside | tee "$(TMPDIR)/wc-gitea-outside"
 	[ $$(cat "$(TMPDIR)/wc-gitea-outside" | wc -l) -eq 0 ] || exit 1
 
-	govendor status || exit 1
+	$(GOVENDOR) status || exit 1
 
 redis_test: init
 	$(GO) test -v -cover ./storage/redis/...
@@ -162,122 +151,60 @@ release: release-dirs release-build release-copy release-check
 release-dirs:
 	mkdir -p $(DIST)/binaries $(DIST)/release
 
-release-build:
-	@hash gox > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		$(GO) get -u github.com/mitchellh/gox; \
-	fi
-	gox -os="$(TARGETS)" -arch="$(ARCHS)" -tags="$(TAGS)" -ldflags="$(EXTLDFLAGS)-s -w $(LDFLAGS)" -output="$(DIST)/binaries/$(EXECUTABLE_BIN)-$(VERSION)-{{.OS}}-{{.Arch}}"
+release-build: $(GOX)
+	$(GOX) -os="$(TARGETS)" -arch="$(ARCHS)" -tags="$(TAGS)" -ldflags="$(EXTLDFLAGS)-s -w $(LDFLAGS)" -output="$(DIST)/binaries/$(EXECUTABLE)-$(VERSION)-{{.OS}}-{{.Arch}}"
 
 release-copy:
-	$(foreach file,$(wildcard $(DIST)/binaries/$(EXECUTABLE_BIN)-*),cp $(file) $(DIST)/release/$(notdir $(file));)
+	$(foreach file,$(wildcard $(DIST)/binaries/$(EXECUTABLE)-*),cp $(file) $(DIST)/release/$(notdir $(file));)
 
 release-check:
-	cd $(DIST)/release; $(foreach file,$(wildcard $(DIST)/release/$(EXECUTABLE_BIN)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
+	cd $(DIST)/release; $(foreach file,$(wildcard $(DIST)/release/$(EXECUTABLE)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
 
-docker_build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)
+build_linux_amd64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/amd64/$(DEPLOY_IMAGE)
 
-docker_build_arm64:
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)-arm64
+build_linux_i386:
+	CGO_ENABLED=0 GOOS=linux GOARCH=386 go build -a -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/i386/$(DEPLOY_IMAGE)
 
-docker_build_arm:
-	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 $(GO) build -a -tags '$(TAGS)' -ldflags "$(EXTLDFLAGS)-s -w $(LDFLAGS)" -o bin/$(EXECUTABLE_BIN)-arm
+build_linux_arm64:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -a -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/arm64/$(DEPLOY_IMAGE)
+
+build_linux_arm:
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -a -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/arm/$(DEPLOY_IMAGE)
+
+build_linux_lambda:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags 'lambda' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/lambda/$(DEPLOY_IMAGE)
 
 docker_image:
 	docker build -t $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE) -f Dockerfile .
 
-docker_release: docker_build docker_image
+docker_release: docker_image
 
 docker_deploy:
 ifeq ($(tag),)
 	@echo "Usage: make $@ tag=<tag>"
 	@exit 1
 endif
-	docker tag $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):latest $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):$(tag)
-	docker push $(DEPLOY_ACCOUNT)/$(EXECUTABLE_BIN):$(tag)
-
-docker_stop:
-	@if [ $(shell docker ps -a | grep -ci $(CONTAINER)) -eq 1 ]; then \
-		docker stop $(CONTAINER) > /dev/null 2>&1; \
-	fi
-
-docker_rm: docker_stop
-	@if [ $(shell docker ps -a | grep -ci $(CONTAINER)) -eq 1 ]; then \
-		docker rm $(CONTAINER) > /dev/null 2>&1; \
-	fi
-
-docker_rmi: docker_rm
-ifeq ($(tag),)
-	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE)) -eq 1 ]; then \
-		docker rmi $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest > /dev/null 2>&1; \
-	fi;
-	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
-		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
-	fi;
-	@if [ $(shell docker images | grep -ci plugins/base) -eq 1 ]; then \
-		docker rmi plugins/base:multiarch > /dev/null 2>&1; \
-	fi
-else
-	@if [ $(shell docker images | grep -ci $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE)) -eq 1 ]; then \
-		docker rmi $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):$(tag) > /dev/null 2>&1; \
-	fi;
-	@if [ $(shell docker images | grep -ci centurylink/ca-certs) -eq 1 ]; then \
-		docker rmi centurylink/ca-certs:latest > /dev/null 2>&1; \
-	fi;
-	@if [ $(shell docker images | grep -ci plugins/base) -eq 1 ]; then \
-		docker rmi plugins/base:multiarch > /dev/null 2>&1; \
-	fi
-endif
-
-docker_run: docker_rm
-	docker run -ti -d --name $(CONTAINER) --restart always \
-	-p $(INTERNAL_PORT):8088 \
-	-v $(DIR)/config:/config:ro \
-	$(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE):latest -config "/config/config.yml"
-
-docker_test:
-	curl \
-	-XGET \
-	-H "Accept: application/json" \
- 	"localhost:$(INTERNAL_PORT)/stats/test" | python -mjson.tool
-
-docker_save:
-	docker save $(DEPLOY_ACCOUNT)/$(DEPLOY_IMAGE) | gzip > $(IMAGE_FILE).tar.gz
-
-docker_load:
-	gunzip < $(IMAGE_FILE).tar.gz | docker load
-
-docker_zip_only:
-	cp $(IMAGE_FILE).tar.gz scripts/$(IMAGE_FILE).tar.gz;
-	rm scripts/envs;
-	rm scripts/*.sh;
-	cp envs scripts/envs;
-	cp build.sh scripts/build.sh;
-	cp remove.sh scripts/remove.sh;
-	cp start.sh scripts/start.sh;
-	cp stop.sh scripts/stop.sh;
-	cp test.sh scripts/test.sh;
-	rm -f scripts/.DS_Store;
-	rm -f $(EXECUTABLE).zip;
-	cd scripts; zip -r -X ../$(EXECUTABLE).zip .
-
-docker_zip: clean docker_rmi docker_build docker_image docker_run docker_test docker_save docker_rmi docker_zip_only
-	# !IMPORTANT: Check the test output before using $(EXECUTABLE).zip file
+	docker tag $(DEPLOY_ACCOUNT)/$(EXECUTABLE):latest $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
+	docker push $(DEPLOY_ACCOUNT)/$(EXECUTABLE):$(tag)
 
 clean:
 	$(GO) clean -x -i ./...
 	find . -name coverage.txt -delete
 	find . -name *.tar.gz -delete
 	find . -name *.db -delete
-	-rm -rf bin dist .cover
+	-rm -rf release dist .cover
 
-rpc/example/node/$(EXECUTABLE_BIN)_*_pb.js: rpc/proto/$(EXECUTABLE_BIN).proto
-	protoc -I rpc/proto rpc/proto/$(EXECUTABLE_BIN).proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
+rpc/example/node/gorush_*_pb.js: rpc/proto/gorush.proto
+	@hash grpc_tools_node_protoc_plugin > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		npm install -g grpc-tools; \
+	fi
+	protoc -I rpc/proto rpc/proto/gorush.proto --js_out=import_style=commonjs,binary:rpc/example/node/ --grpc_out=rpc/example/node/ --plugin=protoc-gen-grpc=$(NODE_PROTOC_PLUGIN)
 
-rpc/proto/$(EXECUTABLE_BIN).pb.go: rpc/proto/$(EXECUTABLE_BIN).proto
-	protoc -I rpc/proto rpc/proto/$(EXECUTABLE_BIN).proto --go_out=plugins=grpc:rpc/proto
+rpc/proto/gorush.pb.go: rpc/proto/gorush.proto
+	protoc -I rpc/proto rpc/proto/gorush.proto --go_out=plugins=grpc:rpc/proto
 
-generate_proto: rpc/proto/$(EXECUTABLE_BIN).pb.go rpc/example/node/$(EXECUTABLE_BIN)_*_pb.js
+generate_proto: rpc/proto/gorush.pb.go rpc/example/node/gorush_*_pb.js
 
 version:
 	@echo $(VERSION)
