@@ -53,7 +53,7 @@ type Browser struct {
 
 // Browsers available
 var Browsers = [...]Browser{
-	{"Chrome", *regexp.MustCompile("https://android.googleapis.com/gcm/send/"), *regexp.MustCompile("<TITLE>(.*)</TITLE>")},
+	{"Chrome", *regexp.MustCompile("https://(android|fcm).googleapis.com/(gcm|fcm)/send/"), *regexp.MustCompile("<TITLE>(.*)</TITLE>")},
 	{"Firefox", *regexp.MustCompile("https://updates.push.services.mozilla.com/wpush"), *regexp.MustCompile("\\\"errno\\\":\\s(\\d+)")},
 }
 
@@ -124,7 +124,7 @@ func (c *Client) Push(n *Notification, apiKey string) (*Response, error) {
 
 	// Create the ECE request.
 	r := ece.CreateRequest(*c.HTTPClient, n.Subscription.Endpoint, ciphertext, &ckh, &eh, int(timeToLive))
-	if strings.Contains(n.Subscription.Endpoint, "https://android.googleapis.com/gcm/send") {
+	if strings.Contains(n.Subscription.Endpoint, "googleapis.com") {
 		r.Header.Add("Authorization", "key="+apiKey)
 	}
 	response, err := c.HTTPClient.Do(r)
