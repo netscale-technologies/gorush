@@ -3,6 +3,7 @@ package gorush
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/jaraxasoftware/gorush/web"
 )
@@ -78,7 +79,7 @@ Retry:
 					req.AddLog(getLogPushEntry(FailedPush, webToken, req, err))
 				} else {
 					var errorText = response.Body
-					var browser web.Browser
+					/*var browser web.Browser
 					var found = false
 					for _, current := range web.Browsers {
 						if current.ReDetect.FindString(subscription.Endpoint) != "" {
@@ -91,7 +92,8 @@ Retry:
 						if match != nil && len(match) > 1 && match[1] != "" {
 							errorText = match[1]
 						}
-					}
+					}*/
+					errorText = strconv.Itoa(response.StatusCode);
 					var errorObj = errors.New(errorText)
 					req.AddLog(getLogPushEntry(FailedPush, webToken, req, errorObj))
 				}
