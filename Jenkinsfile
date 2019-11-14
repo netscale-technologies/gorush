@@ -126,13 +126,16 @@ pipeline {
         }
       }
     }
-  }
-  post {
+   post {
         always {
           script {
             new SlackNotifier().notifyResultFull()
           }
           cleanWs()
         }
-  }  
+  } 
 }
+
+
+ 
+
