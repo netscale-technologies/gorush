@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/jaraxasoftware/gorush/web"
+	"github.com/netscale-technologies/gorush/web"
 )
 
 // InitWebClient use for initialize APNs Client.

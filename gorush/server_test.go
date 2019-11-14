@@ -9,7 +9,7 @@ import (
 
 	"github.com/buger/jsonparser"
 	"github.com/gin-gonic/gin"
-	"github.com/jaraxasoftware/gorush/config"
+	"github.com/netscale-technologies/gorush/config"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/appleboy/gofight.v2"
 )

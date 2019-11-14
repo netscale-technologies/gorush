@@ -4,8 +4,8 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/jaraxasoftware/gorush/config"
-	"github.com/jaraxasoftware/gorush/storage"
+	"github.com/netscale-technologies/gorush/config"
+	"github.com/netscale-technologies/gorush/storage"
 
 	"gopkg.in/redis.v5"
 )
