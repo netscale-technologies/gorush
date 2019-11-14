@@ -78,6 +78,7 @@ pipeline {
             sh "jx preview --app $APP_NAME --namespace $PREVIEW_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --dir ../.."
           }          
         }
+      }
     }
     stage('Build Release for Staging/UAT') {
       when {
