@@ -125,14 +125,14 @@ pipeline {
         }
       }
     }
-    post {
-          always {
-            script {
-              new SlackNotifier().notifyResultFull()
-            }
-            cleanWs()
+  }
+  post {
+        always {
+          script {
+            new SlackNotifier().notifyResultFull()
           }
-    }
+          cleanWs()
+        }
   }
 }    
 
