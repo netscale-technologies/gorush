@@ -67,12 +67,11 @@ pipeline {
       }
       steps {
         container('go') {
-          dir('/home/jenkins/go/src/github.com/netscale-technologies/gorush') {
             sh "make build_linux_amd64"
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
-          dir('/home/jenkins/go/src/github.com/netscale-technologies/gorush/charts/preview') {
+          dir('./charts/preview') {
             sh "make preview"
             sh "jx preview --app $APP_NAME --namespace $PREVIEW_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --dir ../.."
           }          
