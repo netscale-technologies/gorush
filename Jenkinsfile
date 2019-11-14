@@ -9,7 +9,7 @@ pipeline {
     label "jenkins-go"
   }
   environment {
-    PATH+EXTRA = /usr/local/bin
+    PATH+EXTRA = '/usr/local/bin'
     SLACK_CHANNEL = 'dkv-bots'
     SLACK_DOMAIN  = 'jaraxa'
     SLACK_CREDENTIALS = 'slack-netcomp-devops'
