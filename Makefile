@@ -69,6 +69,9 @@ fmt-check:
 vet:
 	$(GO) vet $(PACKAGES)
 
+get: 
+	 $(GO) get 
+	 
 deps:
 	$(GO) get github.com/campoy/embedmd
 
@@ -160,7 +163,7 @@ release-copy:
 release-check:
 	cd $(DIST)/release; $(foreach file,$(wildcard $(DIST)/release/$(EXECUTABLE)-*),sha256sum $(notdir $(file)) > $(notdir $(file)).sha256;)
 
-build_linux_amd64:
+build_linux_amd64: get
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags '$(TAGS)' -ldflags '$(EXTLDFLAGS)-s -w $(LDFLAGS)' -o release/linux/amd64/$(DEPLOY_IMAGE)
 
 build_linux_i386:
