@@ -64,7 +64,7 @@ pipeline {
       }
       steps {
         container('go') {
-          dir('/home/jenkins/go/src/github.com/netscale-technologies/gorush') {
+          dir('./src/github.com/netscale-technologies/gorush') {
             //checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
             sh "echo HOLA"
             sh "make build_linux_amd64"
