@@ -1,5 +1,8 @@
 FROM golang:1.13.4-stretch 
 
+RUN apt-get update 
+RUN apt-get install -y remake
+
 ENV PATH $PATH:/usr/local/go/bin
 ENV PATH $PATH:/usr/local/
 ENV GOROOT /usr/local/go

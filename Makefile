@@ -70,7 +70,7 @@ vet:
 	$(GO) vet $(PACKAGES)
 
 get: 
-	 $(GO) get 
+	$(GO) get 
 
 deps:
 	$(GO) get github.com/campoy/embedmd
