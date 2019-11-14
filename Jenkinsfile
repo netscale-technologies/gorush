@@ -1,3 +1,6 @@
+@Library('devops-tools')
+import org.netscale.jenkins.slack.SlackNotifier
+
 pipeline {
   options {
     disableConcurrentBuilds()
