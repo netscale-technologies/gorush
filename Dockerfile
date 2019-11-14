@@ -9,7 +9,7 @@ LABEL maintainer="Bo-Yi Wu <appleboy.tw@gmail.com>"
 
 ADD release/linux/amd64/gorush /bin/
 
-EXPOSE 8088 9000
+EXPOSE 8088 
 
 HEALTHCHECK --start-period=2s --interval=10s --timeout=5s \
   CMD ["/bin/gorush", "--ping"]

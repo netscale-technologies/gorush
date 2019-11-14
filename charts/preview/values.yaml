@@ -5,7 +5,7 @@ expose:
     helm.sh/hook-delete-policy: hook-succeeded
   config:
     exposer: Ingress
-    http: true
+    http: false
     tlsacme: false
 
 cleanup:
