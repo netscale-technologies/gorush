@@ -135,7 +135,7 @@ pipeline {
           script {
             new SlackNotifier().notifyResultFull()
           }
-          //cleanWs()
+          cleanWs()
         }
   }
 }    
