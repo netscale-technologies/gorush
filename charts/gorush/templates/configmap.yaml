@@ -1,11 +1,11 @@
 
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{ range $i, $brand := .Values.brand -}}
+{{ range $name, $brand := .Values.brand -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" $ }}-{{ $brand }}
+  name: {{ template "fullname" $ }}-{{ $name }}
   labels:
     draft: {{ default "draft-app" $.Values.draft }}
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
