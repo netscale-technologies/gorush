@@ -18,8 +18,7 @@ service:
   type: ClusterIP
   externalPort: 8088
   internalPort: 8088
-  annotations:
-    fabric8.io/expose: "false"
+  annotations: []
 resources:
   limits:
     cpu: 100m
