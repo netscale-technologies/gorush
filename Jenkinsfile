@@ -42,8 +42,8 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm
-            sh(returnStdout: true, script: 'make get')
-            sh(returnStdout: true, script: 'make build_linux_amd64')
+            sh script: 'make get', returnStdout: true
+            sh script: 'make build_linux_amd64', returnStdout: true
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -62,14 +62,13 @@ pipeline {
         PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
         PREVIEW_NAMESPACE = "jx-dkv-preprod"
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
-        LDFLAGS = "-X 'main.Version=$PREVIEW_VERSION)'"
       }
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            sh "go get"
-            sh "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags $LDFLAGS -o release/linux/amd64/gorush"
+            sh script: 'make get', returnStdout: true
+            sh script: 'make build_linux_amd64', returnStdout: true
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -97,8 +96,8 @@ pipeline {
             // so we can retrieve the version in later steps
             sh "echo \$(jx-release-version) > VERSION"
             sh "jx step tag --version \$(cat VERSION)"
-            sh(returnStdout: true, script: 'make get')
-            sh(returnStdout: true, script: 'make build_linux_amd64')
+            sh script: 'make get', returnStdout: true
+            sh script: 'make build_linux_amd64', returnStdout: true
             sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
           }
