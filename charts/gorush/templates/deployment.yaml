@@ -1,7 +1,6 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{ toYaml .Values.resources | indent 12 }}
-{{ range $name, $brand := .Values.brand -}}
+{{ range $name, $brand := .Values.brand }}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:

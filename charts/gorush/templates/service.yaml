@@ -1,7 +1,6 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{ toYaml .Values.service.annotations | indent 4 }}
-{{ range $name, $brand := .Values.brand -}}
+{{ range $name, $brand := .Values.brand }}
 apiVersion: v1
 kind: Service
 metadata:
