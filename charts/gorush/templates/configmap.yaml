@@ -1,0 +1,90 @@
+{{ range $i, $brand := .Values.brand -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-{{ $brand.name }}
+  labels:
+    draft: {{ default "draft-app" .Values.draft }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+data: 
+    config.yml: |-
+        core:
+        enabled: true
+        address: "" 
+        port: "8088"
+        worker_num: 0
+        queue_num: 0
+        max_notification: 100
+        sync: true 
+        mode: "release"
+        ssl: false
+        cert_path: "cert.pem"
+        key_path: "key.pem"
+        http_proxy: ""
+        pid:
+            enabled: false
+            path: "gorush.pid"
+            override: true
+        auto_tls:
+            enabled: false 
+            folder: ".cache"
+            host: ""
+        grpc:
+        enabled: false
+        port: 50051
+        api:
+        push_uri: "/send"
+        stat_go_uri: "/stat/go"
+        stat_app_uri: "/stat/app"
+        config_uri: "/config"
+        sys_stat_uri: "/sys/stats"
+        metric_uri: "/metrics"
+        ping_uri: "/stats/ping"
+        test_uri: "/stats/test"
+        health_uri: "/healthz"
+
+        android:
+        enabled: true
+        apikey: {{ $brand.android.api_key }}
+        max_retry: 0 
+
+        ios:
+        enabled: true
+        key_path: {{ $brand.ios.key_file }}
+        password: {{ $brand.ios.password }}
+        production:  {{ $brand.ios.production }}
+        voip_enabled: true
+        key_type: {{ $brand.ios.key_type }}
+        voip_key_path: {{ $brand.voip.ios.key_file }} 
+        voip_password: {{ $brand.ios.password }}
+        voip_production: {{ $brand.ios.production }}
+        max_retry: 0
+
+        web:
+        enabled: true
+        apikey: {{ $brand.web.api_key }}
+        max_retry: 0
+
+        log:
+        format: "string"
+        access_log: "stdout"
+        access_level: "debug"
+        error_log: "stderr" 
+        error_level: "error"
+        hide_token: false
+
+        stat:
+        engine: "memory"
+        redis:
+            addr: "localhost:6379"
+            password: ""
+            db: 0
+        boltdb:
+            path: "bolt.db"
+            bucket: "gorush"
+        buntdb:
+            path: "bunt.db"
+        leveldb:
+            path: "level.db"
+        Events:  <none>
+{{- end }}        
