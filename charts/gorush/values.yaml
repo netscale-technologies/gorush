@@ -38,3 +38,16 @@ readinessProbe:
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 1
+
+brands:
+  default:
+    ios:
+      password: "Dresd3Ka-uBe!"
+      key_file: "dkv-push.pem"
+      voip:
+        key_file: "dkv-voip-push.pem"
+    android:
+      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+    web:
+      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+

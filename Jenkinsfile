@@ -66,8 +66,8 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            sh "make get -d"
-            sh "make build_linux_amd64 -d"
+            sh "make get --debug=b"
+            sh "make build_linux_amd64 --debug=b"
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
