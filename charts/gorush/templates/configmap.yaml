@@ -1,11 +1,14 @@
+
+{{- if .Values.knativeDeploy }}
+{{- else }}
 {{ range $i, $brand := .Values.brand -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}-{{ $brand }}
+  name: {{ template "fullname" $ }}-{{ $brand }}
   labels:
-    draft: {{ default "draft-app" .Values.draft }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    draft: {{ default "draft-app" $.Values.draft }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
 data: 
     config.yml: |-
         core:
@@ -55,7 +58,7 @@ data:
         production:  {{ $brand.ios.production }}
         voip_enabled: true
         key_type: {{ $brand.ios.key_type }}
-        voip_key_path: {{ $brand.voip.ios.key_file }} 
+        voip_key_path: {{ $brand.ios.voip.key_file }} 
         voip_password: {{ $brand.ios.password }}
         voip_production: {{ $brand.ios.production }}
         max_retry: 0
@@ -88,3 +91,4 @@ data:
             path: "level.db"
         Events:  <none>
 {{- end }}        
+{{- end }}   
