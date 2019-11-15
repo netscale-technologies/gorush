@@ -62,19 +62,20 @@ pipeline {
         PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
         PREVIEW_NAMESPACE = "jx-dkv-preprod"
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
+        LDFLAGS = "-X 'main.Version=$PREVIEW_VERSION)'"
       }
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            sh(returnStdout: true, script: 'make get')
-            sh(returnStdout: true, script: 'make build_linux_amd64')
+            sh "go get"
+            sh "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags $LD_FLAGS -o release/linux/amd64/gorush"
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/preview') {
             sh "make preview"
-            sh "jx preview --app $APP_NAME --namespace $PREVIEW_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --dir --verbose ../.."
+            sh "jx preview --app $APP_NAME --namespace $PREVIEW_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --verbose --dir  ../.."
           }          
         }
       }
