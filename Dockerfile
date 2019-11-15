@@ -14,4 +14,4 @@ EXPOSE 8088
 HEALTHCHECK --start-period=2s --interval=10s --timeout=5s \
   CMD ["/bin/gorush", "--ping"]
 
-ENTRYPOINT ["/bin/gorush"]
+ENTRYPOINT ["/bin/gorush", "-c", "/config/config.yml"]

@@ -1,51 +1,61 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
+{{ toYaml .Values.resources | indent 12 }}
+{{ range $name, $brand := .Values.brand -}}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "fullname" $ }}-{{ $name }}
   labels:
-    draft: {{ default "draft-app" .Values.draft }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    draft: {{ default "draft-app" $.Values.draft }}
+    chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ $.Values.replicaCount }}
   template:
     metadata:
       labels:
-        draft: {{ default "draft-app" .Values.draft }}
-        app: {{ template "fullname" . }}
-{{- if .Values.podAnnotations }}
+        draft: {{ default "draft-app" $.Values.draft }}
+        name: {{ template "fullname" $ }}-{{ $name }}
+{{- if $.Values.podAnnotations }}
       annotations:
 {{ toYaml .Values.podAnnotations | indent 8 }}
 {{- end }}
     spec:
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: {{ $.Chart.Name }}
+        image: "{{ $.Values.image.repository }}:{{ $.Values.image.tag }}"
+        imagePullPolicy: {{ $.Values.image.pullPolicy }}
         env:
-{{- range $pkey, $pval := .Values.env }}
+{{- range $pkey, $pval := $.Values.env }}
         - name: {{ $pkey }}
           value: {{ quote $pval }}
 {{- end }}
+        volumeMounts:
+        - name: {{ template "fullname" $ }}-{{ $name }}
+          mountPath: {{ $.Values.config_file }}
         ports:
-        - containerPort: {{ .Values.service.internalPort }}
+        - containerPort: {{ $.Values.service.internalPort }}
         livenessProbe:
           httpGet:
-            path: {{ .Values.probePath }}
-            port: {{ .Values.service.internalPort }}
-          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
-          successThreshold: {{ .Values.livenessProbe.successThreshold }}
-          timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            path: {{ $.Values.probePath }}
+            port: {{ $.Values.service.internalPort }}
+          initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
+          successThreshold: {{ $.Values.livenessProbe.successThreshold }}
+          timeoutSeconds: {{ $.Values.livenessProbe.timeoutSeconds }}
         readinessProbe:
           httpGet:
-            path: {{ .Values.probePath }}
-            port: {{ .Values.service.internalPort }}
-          periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
-          successThreshold: {{ .Values.readinessProbe.successThreshold }}
-          timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            path: {{ $.Values.probePath }}
+            port: {{ $.Values.service.internalPort }}
+          periodSeconds: {{ $.Values.readinessProbe.periodSeconds }}
+          successThreshold: {{ $.Values.readinessProbe.successThreshold }}
+          timeoutSeconds: {{ $.Values.readinessProbe.timeoutSeconds }}
         resources:
-{{ toYaml .Values.resources | indent 12 }}
-      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+{{ toYaml $.Values.resources | indent 12 }}
+      volumes:
+      - name: {{ template "fullname" $ }}-{{ $name }}
+        configMap:
+          name: {{ template "fullname" $ }}-{{ $name }}
+      terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
+{{- end }}
 {{- end }}
