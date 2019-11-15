@@ -1,6 +1,6 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{ range $name, $brand := .Values.brand -}}
+{{- range $name, $brand := .Values.brand }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -20,5 +20,5 @@ spec:
     name: http
   selector:
   name: {{ template "fullname" $ }}-{{ $name }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}

@@ -1,6 +1,6 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{- range $name, $brand := .Values.brand -}}
+{{- range $name, $brand := .Values.brand }}
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -56,5 +56,5 @@ spec:
         configMap:
           name: {{ template "fullname" $ }}-{{ $name }}
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
-{{ end }}
-{{ end }}
+{{- end }}
+{{- end }}
