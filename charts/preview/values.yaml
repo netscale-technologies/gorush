@@ -8,6 +8,13 @@ expose:
     http: false
     tlsacme: false
 
+cleanup:
+  Args:
+    - --cleanup
+  Annotations:
+    helm.sh/hook: pre-delete
+    helm.sh/hook-delete-policy: hook-succeeded
+
 preview:
   image:
     repository:

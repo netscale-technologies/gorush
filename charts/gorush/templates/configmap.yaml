@@ -1,11 +1,12 @@
 
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{- range $name, $brand := .Values.brand }}
+{{- range $name, $val := .Values.brand }}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" $ }}-{{ $name }}
+  name: "{{ template "fullname" $ }}-{{ $name }}"
   labels:
     draft: {{ default "draft-app" $.Values.draft }}
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
@@ -48,24 +49,24 @@ data:
 
         android:
         enabled: true
-        apikey: {{ $brand.android.api_key }}
+        apikey: {{ $val.android.api_key }}
         max_retry: 0 
 
         ios:
         enabled: true
-        key_path: {{ $brand.ios.key_file }}
-        password: {{ $brand.ios.password }}
-        production:  {{ $brand.ios.production }}
+        key_path: {{ $val.ios.key_file }}
+        password: {{ $val.ios.password }}
+        production:  {{ $val.ios.production }}
         voip_enabled: true
-        key_type: {{ $brand.ios.key_type }}
-        voip_key_path: {{ $brand.ios.voip.key_file }} 
-        voip_password: {{ $brand.ios.password }}
-        voip_production: {{ $brand.ios.production }}
+        key_type: {{ $val.ios.key_type }}
+        voip_key_path: {{ $val.ios.voip.key_file }} 
+        voip_password: {{ $val.ios.password }}
+        voip_production: {{ $val.ios.production }}
         max_retry: 0
 
         web:
         enabled: true
-        apikey: {{ $brand.web.api_key }}
+        apikey: {{ $val.web.api_key }}
         max_retry: 0
 
         log:
@@ -91,4 +92,5 @@ data:
             path: "level.db"
         Events:  <none>
 {{- end }}        
-{{- end }}   
+{{- end }}
+  

@@ -1,10 +1,11 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{- range $name, $brand := .Values.brand }}
+{{- range $name, $val := .Values.brand }}
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ template "fullname" $ }}-{{ $name }}
+  name: "{{ template "fullname" $ }}-{{ $name }}"
   labels:
     draft: {{ default "draft-app" $.Values.draft }}
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
@@ -14,7 +15,7 @@ spec:
     metadata:
       labels:
         draft: {{ default "draft-app" $.Values.draft }}
-        name: {{ template "fullname" $ }}-{{ $name }}
+        name: "{{ template "fullname" $ }}-{{ $name }}"
 {{- if $.Values.podAnnotations }}
       annotations:
 {{ toYaml .Values.podAnnotations | indent 8 }}
@@ -30,7 +31,7 @@ spec:
           value: {{ quote $pval }}
 {{- end }}
         volumeMounts:
-        - name: {{ template "fullname" $ }}-{{ $name }}
+        - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_file }}
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
@@ -52,9 +53,9 @@ spec:
         resources:
 {{ toYaml $.Values.resources | indent 12 }}
       volumes:
-      - name: {{ template "fullname" $ }}-{{ $name }}
+      - name: "{{ template "fullname" $ }}-{{ $name }}"
         configMap:
-          name: {{ template "fullname" $ }}-{{ $name }}
+          name: "{{ template "fullname" $ }}-{{ $name }}"
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- end }}

@@ -1,10 +1,11 @@
 {{- if .Values.knativeDeploy }}
 {{- else }}
-{{- range $name, $brand := .Values.brand }}
+{{- range $name, $val := .Values.brand }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "fullname" $ }}-{{ $name }}
+  name: "{{ template "fullname" $ }}-{{ $name }}"
   labels:
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
 {{- if $.Values.service.annotations }}
@@ -19,6 +20,6 @@ spec:
     protocol: TCP
     name: http
   selector:
-  name: {{ template "fullname" $ }}-{{ $name }}
+  name: "{{ template "fullname" $ }}-{{ $name }}"
 {{- end }}
 {{- end }}
