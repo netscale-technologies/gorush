@@ -42,7 +42,7 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm
-            sh "make build_linux_amd64"
+            sh returnStdOut: true, "make build_linux_amd64"
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -66,8 +66,8 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            sh "make get --debug=b"
-            sh "make build_linux_amd64 --debug=b"
+            sh returnStdOut: true, "make get"
+            sh returnStdOut: true, "make build_linux_amd64"
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -95,7 +95,8 @@ pipeline {
             // so we can retrieve the version in later steps
             sh "echo \$(jx-release-version) > VERSION"
             sh "jx step tag --version \$(cat VERSION)"
-            sh "make build"
+            sh returnStdOut: true, "make get"
+            sh returnStdOut: true, "make build_linux_amd64"
             sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
           }
