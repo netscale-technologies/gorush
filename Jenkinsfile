@@ -66,9 +66,7 @@ pipeline {
 
             extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'CalibrationResults']], 
       steps {
-        container('go') {
-          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/certs') {
-          }          
+        container('go') {     
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
             checkout scm: [$class: 'GitSCM', branches: [[name: 'master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'certs'], [$class: 'SparseCheckoutPaths', path: 'push']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
