@@ -13,82 +13,84 @@ metadata:
 data: 
     config.yml: |-
         core:
-        enabled: true
-        address: "" 
-        port: "8088"
-        worker_num: 0
-        queue_num: 0
-        max_notification: 100
-        sync: true 
-        mode: "release"
-        ssl: false
-        cert_path: "cert.pem"
-        key_path: "key.pem"
-        http_proxy: ""
-        pid:
+          enabled: true
+          address: "" 
+          port: "8088"
+          worker_num: 0
+          queue_num: 0
+          max_notification: 100
+          sync: true 
+          mode: "release"
+          ssl: false
+          cert_path: "cert.pem"
+          key_path: "key.pem"
+          http_proxy: ""
+          pid:
             enabled: false
             path: "gorush.pid"
             override: true
-        auto_tls:
+          auto_tls:
             enabled: false 
             folder: ".cache"
             host: ""
+        
         grpc:
-        enabled: false
-        port: 50051
+          enabled: false
+          port: 50051
+        
         api:
-        push_uri: "/send"
-        stat_go_uri: "/stat/go"
-        stat_app_uri: "/stat/app"
-        config_uri: "/config"
-        sys_stat_uri: "/sys/stats"
-        metric_uri: "/metrics"
-        ping_uri: "/stats/ping"
-        test_uri: "/stats/test"
-        health_uri: "/healthz"
+          push_uri: "/send"
+          stat_go_uri: "/stat/go"
+          stat_app_uri: "/stat/app"
+          config_uri: "/config"
+          sys_stat_uri: "/sys/stats"
+          metric_uri: "/metrics"
+          ping_uri: "/stats/ping"
+          test_uri: "/stats/test"
+          health_uri: "/healthz"
 
         android:
-        enabled: true
-        apikey: {{ $val.android.api_key }}
-        max_retry: 0 
+          enabled: true
+          apikey: {{ $val.android.api_key }}
+          max_retry: 0 
 
         ios:
-        enabled: true
-        key_path: {{ $val.ios.key_file }}
-        password: {{ $val.ios.password }}
-        production:  {{ $val.ios.production }}
-        voip_enabled: true
-        key_type: {{ $val.ios.key_type }}
-        voip_key_path: {{ $val.ios.voip.key_file }} 
-        voip_password: {{ $val.ios.password }}
-        voip_production: {{ $val.ios.production }}
-        max_retry: 0
+          enabled: true
+          key_path: {{ $val.ios.key_file }}
+          password: {{ $val.ios.password }}
+          production:  {{ $val.ios.production }}
+          voip_enabled: true
+          key_type: {{ $val.ios.key_type }}
+          voip_key_path: {{ $val.ios.voip.key_file }} 
+          voip_password: {{ $val.ios.password }}
+          voip_production: {{ $val.ios.production }}
+          max_retry: 0
 
         web:
-        enabled: true
-        apikey: {{ $val.web.api_key }}
-        max_retry: 0
+          enabled: true
+          apikey: {{ $val.web.api_key }}
+          max_retry: 0
 
         log:
-        format: "string"
-        access_log: "stdout"
-        access_level: "debug"
-        error_log: "stderr" 
-        error_level: "error"
-        hide_token: false
+          format: "string"
+          access_log: "stdout"
+          access_level: "debug"
+          error_log: "stderr" 
+          error_level: "error"
+          hide_token: false
 
         stat:
-        engine: "memory"
-        redis:
+          engine: "memory"
+          redis:
             addr: "localhost:6379"
             password: ""
             db: 0
-        boltdb:
+          boltdb:
             path: "bolt.db"
             bucket: "gorush"
-        buntdb:
+          buntdb:
             path: "bunt.db"
-        leveldb:
+          leveldb:
             path: "level.db"
         Events:  <none>
 {{- end }}        
