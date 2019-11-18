@@ -42,24 +42,6 @@ readinessProbe:
   timeoutSeconds: 1
 
 brand:
-  mps:
-    route:
-      auth: yes
-      path: "/push-mps"
-      domain: "netc.io"
-      subdomain: "preprod"
-    ios:
-      key_base64: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR1RBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJIa3dkd0lCQVFRZ1d4L2VxMFJhcElRM2FRN3gKQ01YL0VKUHpCRExFREUrUERpMVhNaU9oTGdpZ0NnWUlLb1pJemowREFRZWhSQU5DQUFSNHRpVlVqRW54NmlmYgpYeitQNmR2dTdSSllMS1NXbXV3SXBPb0VPdFlxQURjY29qV05SUnJHVVo0OGh0a09KV0FPZGNrUWNaWnI5a0doCnFvRkRBS1V5Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0="
-      password: ""
-      key_type: "p8"
-      key_id: "7D766CU652"
-      team_id: "GY734TMK7P"
-      voip_enabled: "true"
-      production: "true"
-    android:
-      api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
-    web:
-      api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
   default:
     ios:
       password: "Dresd3Ka-uBe!"
