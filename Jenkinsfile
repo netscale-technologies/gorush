@@ -66,8 +66,8 @@ pipeline {
       steps {
         container('go') {     
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
+            checkout scm: [$class: 'GitSCM', quietOperation: true, branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
+            checkout scm: [$class: 'GitSCM', quietOperation: true, branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
             sh script: 'make get', returnStdout: true
             sh script: 'make build_linux_amd64', returnStdout: true
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
