@@ -63,8 +63,6 @@ pipeline {
         PREVIEW_NAMESPACE = "jx-dkv-preprod"
         HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
       }
-
-            extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: 'CalibrationResults']], 
       steps {
         container('go') {     
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
