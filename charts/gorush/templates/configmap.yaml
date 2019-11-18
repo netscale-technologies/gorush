@@ -56,12 +56,12 @@ data:
 
         ios:
           enabled: true
-          key_path: {{ $val.ios.key_file }}
+          key_path: "{{ $.Values.certs_dir }}/{{ $val.ios.key_file }}"
           password: {{ $val.ios.password }}
           production:  {{ $val.ios.production }}
           voip_enabled: true
           key_type: {{ $val.ios.key_type }}
-          voip_key_path: {{ $val.ios.voip.key_file }} 
+          voip_key_path: "{{ $.Values.certs_dir }}/{{ $val.ios.voip.key_file }}"
           voip_password: {{ $val.ios.password }}
           voip_production: {{ $val.ios.production }}
           max_retry: 0

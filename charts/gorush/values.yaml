@@ -28,6 +28,8 @@ resources:
     memory: 128Mi
 probePath: /
 config_dir: /config/
+certs_dir: /certificates/
+key: key_file
 livenessProbe:
   initialDelaySeconds: 60
   periodSeconds: 10
@@ -54,14 +56,14 @@ brand:
       api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
   sanify:
     ios:
-      password: "Dresd3Ka-uBe!"
-      key_file: "dkv-push.pem"
+      password: "talentomobile"
+      key_file: "dkv-push-sanify-talento.p12"
       key_type: ""
-      production: ""
+      production: "true"
       voip:
-        key_file: "dkv-voip-push.pem"
+        key_file: ""
     android:
-      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+      api_key: "AAAADLM5pME:APA91bH49RrYcnWAYKK8Rvdb2TbNASBph-2Tou1wYlj7Coh8U8hNrEXvZqZAmraDg6bDI3vVzHH86RVKiByPpClKkeozjG3KtDxJKveGSnCDaY0_qgOlZh-dFUXEs6np344P81KS2iaH"
     web:
-      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
 

@@ -8,6 +8,7 @@ LABEL org.label-schema.schema-version="1.0"
 LABEL maintainer="Sergio Jurado <sergio.jurado@netscale.io>"
 
 ADD release/linux/amd64/gorush /bin/
+ADD certs/ /certificates/
 
 EXPOSE 8088 
 

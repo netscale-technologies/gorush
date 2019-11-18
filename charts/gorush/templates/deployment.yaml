@@ -30,6 +30,8 @@ spec:
         - name: {{ $pkey }}
           value: {{ quote $pval }}
 {{- end }}
+        - name: {{ $.Values.key }}
+          value: {{ quote $val.ios.key_file }}
         volumeMounts:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
