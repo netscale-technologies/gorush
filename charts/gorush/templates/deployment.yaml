@@ -32,7 +32,7 @@ spec:
 {{- end }}
         volumeMounts:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
-          mountPath: {{ $.Values.config_file }}
+          mountPath: {{ $.Values.config_dir }}
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
         livenessProbe:

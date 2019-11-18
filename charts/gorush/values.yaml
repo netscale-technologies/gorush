@@ -27,7 +27,7 @@ resources:
     cpu: 80m
     memory: 128Mi
 probePath: /
-config_file: /config/config.yml
+config_dir: /config/
 livenessProbe:
   initialDelaySeconds: 60
   periodSeconds: 10
