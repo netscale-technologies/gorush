@@ -65,7 +65,7 @@ pipeline {
       }
       steps {
         container('go') {
-          dir('/certificates/') {
+          dir('./certificates/') {
             checkout scm: [$class: 'GitSCM', branches: [[name: 'master']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
           }
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
