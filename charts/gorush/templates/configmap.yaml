@@ -61,7 +61,9 @@ data:
           production:  {{ $val.ios.production }}
           voip_enabled: true
           key_type: {{ $val.ios.key_type }}
+{{- if $val.ios.voip }}          
           voip_key_path: "{{ $.Values.certs_dir }}/{{ $val.ios.voip.key_file }}"
+{{- end }}
           voip_password: {{ $val.ios.password }}
           voip_production: {{ $val.ios.production }}
           max_retry: 0

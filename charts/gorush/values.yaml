@@ -42,78 +42,78 @@ readinessProbe:
   timeoutSeconds: 1
 
 brand:
-    mps:
-      route:
-        auth: yes
-        path: "/push-mps"
-        domain: "netc.io"
-        subdomain: "preprod"
-      ios:
-        key_base64: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR1RBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJIa3dkd0lCQVFRZ1d4L2VxMFJhcElRM2FRN3gKQ01YL0VKUHpCRExFREUrUERpMVhNaU9oTGdpZ0NnWUlLb1pJemowREFRZWhSQU5DQUFSNHRpVlVqRW54NmlmYgpYeitQNmR2dTdSSllMS1NXbXV3SXBPb0VPdFlxQURjY29qV05SUnJHVVo0OGh0a09KV0FPZGNrUWNaWnI5a0doCnFvRkRBS1V5Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0="
-        password: ""
-        key_type: "p8"
-        key_id: "7D766CU652"
-        team_id: "GY734TMK7P"
-        voip_enabled: "true"
-        production: "true"
-      android:
-        api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
-      web:
-        api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
-    default:
-      ios:
-        password: "Dresd3Ka-uBe!"
-        key_file: "dkv-push.pem"
-        voip:
-          key_file: "dkv-voip-push.pem"
-      android:
-        api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
-      web:
-        api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
-    qcplus:
-      route:
-        auth: yes
-        path: "/push-qcplus"
-        domain: "netc.io"
-        subdomain: "preprod"
-      ios:
-        key_type: "p12"
-        password: "talentomobile"
-        key_file: "dkv-talento-qcplus-preprod-push.p12"
-        production: "true"
-      android:
-        api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
-      web:
-        api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
-    globality:
-      route:
-        auth: yes
-        path: "/push-globality"
-        domain: "netc.io"
-        subdomain: "preprod"
-      ios:
-        key_type: "p12"
-        password: "talento"
-        key_file: "dkv-globality-preprod-push.p12"
-        production: "true"
-      android:
-        api_key: "AAAAwuNIVAg:APA91bH5J4wBdkHfXUN7g_eyFCo9r0ffVQS-VcaEVAn9jNkMFV7WpQsvS_9z_CmHcikhzCa0b26rYcJNO15F583Ybc1_oD07V2E7aeXQjv69VdDICeDu7MBKaxmuCS-wsUQJ1xQb-VTH"
-      web:
-        api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
-    sanify:
-      route:
-        auth: yes
-        path: "/push-sanify"
-        domain: "netc.io"
-        subdomain: "preprod"
-      ios:
-        key_type: "p12"
-        password: "talentomobile"
-        key_file: "dkv-push-sanify-talento.p12"
-        production: "true"
-      android:
-        api_key: "AAAADLM5pME:APA91bH49RrYcnWAYKK8Rvdb2TbNASBph-2Tou1wYlj7Coh8U8hNrEXvZqZAmraDg6bDI3vVzHH86RVKiByPpClKkeozjG3KtDxJKveGSnCDaY0_qgOlZh-dFUXEs6np344P81KS2iaH"
-      web:
-        api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  mps:
+    route:
+      auth: yes
+      path: "/push-mps"
+      domain: "netc.io"
+      subdomain: "preprod"
+    ios:
+      key_base64: "LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JR1RBZ0VBTUJNR0J5cUdTTTQ5QWdFR0NDcUdTTTQ5QXdFSEJIa3dkd0lCQVFRZ1d4L2VxMFJhcElRM2FRN3gKQ01YL0VKUHpCRExFREUrUERpMVhNaU9oTGdpZ0NnWUlLb1pJemowREFRZWhSQU5DQUFSNHRpVlVqRW54NmlmYgpYeitQNmR2dTdSSllMS1NXbXV3SXBPb0VPdFlxQURjY29qV05SUnJHVVo0OGh0a09KV0FPZGNrUWNaWnI5a0doCnFvRkRBS1V5Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0="
+      password: ""
+      key_type: "p8"
+      key_id: "7D766CU652"
+      team_id: "GY734TMK7P"
+      voip_enabled: "true"
+      production: "true"
+    android:
+      api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
+    web:
+      api_key: "AAAASSmGQrU:APA91bE1hl--Z_IKFQDijwwzLnHChL4vDj9abLUIKJN_i8WHi-RIsZGsET5AOczJ0DTzaWetrV1GPWNjaneDsvKTKiLmGV8M99_NoBpJK-Iyh_xQS6ai_7Mh1mUfcQVttjZyfR2hOLHM"
+  default:
+    ios:
+      password: "Dresd3Ka-uBe!"
+      key_file: "dkv-push.pem"
+      voip:
+        key_file: "dkv-voip-push.pem"
+    android:
+      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+    web:
+      api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
+  qcplus:
+    route:
+      auth: yes
+      path: "/push-qcplus"
+      domain: "netc.io"
+      subdomain: "preprod"
+    ios:
+      key_type: "p12"
+      password: "talentomobile"
+      key_file: "dkv-talento-qcplus-preprod-push.p12"
+      production: "true"
+    android:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  globality:
+    route:
+      auth: yes
+      path: "/push-globality"
+      domain: "netc.io"
+      subdomain: "preprod"
+    ios:
+      key_type: "p12"
+      password: "talento"
+      key_file: "dkv-globality-preprod-push.p12"
+      production: "true"
+    android:
+      api_key: "AAAAwuNIVAg:APA91bH5J4wBdkHfXUN7g_eyFCo9r0ffVQS-VcaEVAn9jNkMFV7WpQsvS_9z_CmHcikhzCa0b26rYcJNO15F583Ybc1_oD07V2E7aeXQjv69VdDICeDu7MBKaxmuCS-wsUQJ1xQb-VTH"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  sanify:
+    route:
+      auth: yes
+      path: "/push-sanify"
+      domain: "netc.io"
+      subdomain: "preprod"
+    ios:
+      key_type: "p12"
+      password: "talentomobile"
+      key_file: "dkv-push-sanify-talento.p12"
+      production: "true"
+    android:
+      api_key: "AAAADLM5pME:APA91bH49RrYcnWAYKK8Rvdb2TbNASBph-2Tou1wYlj7Coh8U8hNrEXvZqZAmraDg6bDI3vVzHH86RVKiByPpClKkeozjG3KtDxJKveGSnCDaY0_qgOlZh-dFUXEs6np344P81KS2iaH"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
 
 
