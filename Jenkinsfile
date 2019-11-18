@@ -42,8 +42,8 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm
-            sh script: 'make get'
-            sh script: 'make build_linux_amd64'
+            sh 'make get'
+            sh 'make build_linux_amd64'
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -68,8 +68,8 @@ pipeline {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
             checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
-            sh script: 'make get'
-            sh script: 'make build_linux_amd64'
+            sh 'make get'
+            sh 'make build_linux_amd64'
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
@@ -87,7 +87,8 @@ pipeline {
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
-            checkout scm
+            checkout scm: [$class: 'GitSCM', branches: [[name: '*/staging']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
+            checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
 
             // ensure we're not on a detached head
             sh "git checkout $CI_BRANCH_UAT"
@@ -97,8 +98,8 @@ pipeline {
             // so we can retrieve the version in later steps
             sh "echo \$(jx-release-version) > VERSION"
             sh "jx step tag --version \$(cat VERSION)"
-            sh script: 'make get', returnStdout: true
-            sh script: 'make build_linux_amd64', returnStdout: true
+            sh 'make get'
+            sh 'make build_linux_amd64'
             sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
             sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
           }
