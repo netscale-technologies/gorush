@@ -33,7 +33,7 @@ spec:
         volumeMounts:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
-        - name: "{{ template "certs.fullname" $ }}-{{ $name }}"
+        - name: "{{ template "certsfullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.certs_dir }}/{{ $.Values.key }}
           readOnly: true        
         ports:
