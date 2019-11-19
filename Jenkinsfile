@@ -67,7 +67,6 @@ pipeline {
         container('go') {     
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
             sh 'make get'
             sh 'make build_linux_amd64'
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
@@ -88,8 +87,6 @@ pipeline {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
             checkout scm: [$class: 'GitSCM', branches: [[name: '*/staging']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/master']], extensions: [[$class: 'RelativeTargetDirectory', relativeTargetDir: './certs/'], [$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: 'push/']]]], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/certs']]]
-
             // ensure we're not on a detached head
             sh "git checkout $CI_BRANCH_UAT"
             sh "git config --global credential.helper store"

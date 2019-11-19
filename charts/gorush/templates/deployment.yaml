@@ -30,11 +30,12 @@ spec:
         - name: {{ $pkey }}
           value: {{ quote $pval }}
 {{- end }}
-        - name: {{ $.Values.key }}
-          value: {{ quote $val.ios.key_file }}
         volumeMounts:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
+        - name: "{{ template "certs.fullname" $ }}-{{ $name }}"
+          mountPath: {{ $.Values.certs_dir }}/{{ $.Values.key }}
+          readOnly: true        
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
         livenessProbe:
@@ -58,6 +59,9 @@ spec:
       - name: "{{ template "fullname" $ }}-{{ $name }}"
         configMap:
           name: "{{ template "fullname" $ }}-{{ $name }}"
+      - name: "{{ template "fullname" $ }}-{{ $name }}"
+        secret:
+          secretName: "{{ template "certs.fullname" $ }}-{{ $name }}"
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- end }}
