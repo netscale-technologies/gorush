@@ -10,6 +10,7 @@ dependencies:
   version: 2.3.92
 - name: certs
   repository: http://jenkins-x-chartmuseum:8080  
+  version:
 
   # !! "alias: preview" must be last entry in dependencies array !!
   # !! Place custom dependencies above !!
