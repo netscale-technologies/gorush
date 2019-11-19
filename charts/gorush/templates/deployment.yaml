@@ -33,7 +33,7 @@ spec:
         volumeMounts:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
-        - name: "{{ template "certs.fullname" $ }}-{{ $name }}"
+        - name: "{{ $.Values.certs.name }}-{{ $name }}"
           mountPath: {{ $.Values.certs_dir }}/{{ $.Values.key }}
           readOnly: true        
         ports:
@@ -59,9 +59,9 @@ spec:
       - name: "{{ template "fullname" $ }}-{{ $name }}"
         configMap:
           name: "{{ template "fullname" $ }}-{{ $name }}"
-      - name: "{{ template "certs.fullname" $ }}-{{ $name }}"
+      - name: "{{ $.Values.certs.name }}-{{ $name }}"
         secret:
-          secretName: "{{ template "certs.fullname" $ }}-{{ $name }}"
+          secretName: "{{ $.Values.certs.name }}-{{ $name }}"
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- end }}
