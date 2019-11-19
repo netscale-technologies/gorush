@@ -34,7 +34,7 @@ spec:
         - name: "{{ template "fullname" $ }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
-          mountPath: {{ $.Values.certs_dir }}/{{ quote $val.ios.key_file }}
+          mountPath: {{ $.Values.certs_dir }}/{{ $val.ios.key_file }}
           readOnly: true        
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
