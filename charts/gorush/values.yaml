@@ -41,6 +41,10 @@ readinessProbe:
   successThreshold: 1
   timeoutSeconds: 1
 
+
+certs:
+  name: gorush-certs    
+
 brand:
   mps:
     ios:
