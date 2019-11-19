@@ -59,7 +59,7 @@ spec:
       - name: "{{ template "fullname" $ }}-{{ $name }}"
         configMap:
           name: "{{ template "fullname" $ }}-{{ $name }}"
-      - name: "{{ template "fullname" $ }}-{{ $name }}-secret"
+      - name: "{{ template "certsfullname" $ }}-{{ $name }}"
         secret:
           secretName: "{{ template "certsfullname" $ }}-{{ $name }}"
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
