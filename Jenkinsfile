@@ -122,7 +122,7 @@ pipeline {
             sh "jx promote -b --timeout 1h --version \$(cat ../../VERSION) --env $REMOTE_ENV_NAME"
 
           // delete unnecessary staging namespace
-          sh "jx delete namespace $STAGING_NAMESPACE"              
+            sh "jx delete namespace $STAGING_NAMESPACE --batch-mode -y"              
           }
         }
       }
