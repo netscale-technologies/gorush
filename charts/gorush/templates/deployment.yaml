@@ -16,7 +16,7 @@ spec:
       labels:
         draft: {{ default "draft-app" $.Values.draft }}
         name: "{{ template "fullname" $ }}-{{ $name }}"
-    annotations:
+      annotations:
 {{- if $val.ios.key_file }}            
         checksum/gorush-secrets: "{{ $.Values.certs.name }}-{{ $val.ios.key_file }}"
 {{- end }}      
