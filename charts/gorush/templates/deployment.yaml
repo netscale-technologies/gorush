@@ -68,13 +68,12 @@ spec:
       - name: "{{ $.Values.certs.name }}-{{ $name }}"
         secret:
           secretName: {{ $.Values.certs.name }}-{{ $val.ios.key_file }}
-{{- else if $val.ios.voip }}          
+{{- end }}        
+{{- if $val.ios.voip }}          
       - name: "{{ $.Values.certs.name }}-{{ $name }}-voip"
         secret:
           secretName: {{ $.Values.certs.name }}-{{ $val.ios.voip.key_file }}
-{{- else }}
-
-{{- end }}          
+{{- end }}        
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
 {{- end }}
 {{- end }}
