@@ -16,14 +16,8 @@ spec:
       labels:
         draft: {{ default "draft-app" $.Values.draft }}
         name: "{{ template "fullname" $ }}-{{ $name }}"
-      annotations:
-{{- if $val.ios.key_file }}            
-        checksum/gorush-secrets: "{{ $.Values.certs.name }}-{{ $val.ios.key_file }}"
-{{- end }}      
-{{- if $val.ios.voip }}              
-        checksum/gorush-secrets1: "{{ $.Values.certs.name }}-{{ $val.ios.voip.key_file }}"  
-{{- end }}          
-{{- if $.Values.podAnnotations }}
+{{- if $.Values.podAnnotations }}      
+      annotations:   
 {{ toYaml $.Values.podAnnotations | indent 8 }}
 {{- end }}
     spec:
