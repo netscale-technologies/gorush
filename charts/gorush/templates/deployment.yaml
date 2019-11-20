@@ -9,6 +9,10 @@ metadata:
   labels:
     draft: {{ default "draft-app" $.Values.draft }}
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
+{{- if $.Values.podAnnotations }}    
+  annotations:      
+{{ toYaml $.Values.deployAnnotations | indent 4 }}
+{{- end }}
 spec:
   replicas: {{ $.Values.replicaCount }}
   template:

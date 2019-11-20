@@ -13,7 +13,7 @@ env:
 # enable this flag to use knative serve to deploy the app
 knativeDeploy: false
 
-podAnnotations:
+deployAnnotations:
   wave.pusher.com/update-on-config-change: "true"
 
 service:
