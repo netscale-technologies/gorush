@@ -64,13 +64,16 @@ spec:
       - name: "{{ template "fullname" $ }}-{{ $name }}"
         configMap:
           name: "{{ template "fullname" $ }}-{{ $name }}"
+{{- if $val.ios.key_file }}          
       - name: "{{ $.Values.certs.name }}-{{ $name }}"
         secret:
           secretName: {{ $.Values.certs.name }}-{{ $val.ios.key_file }}
-{{- if $val.ios.voip }}          
-      - name: "{{ $.Values.certs.name }}-{{ $name }}"
+{{- else if $val.ios.voip }}          
+      - name: "{{ $.Values.certs.name }}-{{ $name }}-voip"
         secret:
           secretName: {{ $.Values.certs.name }}-{{ $val.ios.voip.key_file }}
+{{- else }}
+
 {{- end }}          
       terminationGracePeriodSeconds: {{ $.Values.terminationGracePeriodSeconds }}
 {{- end }}
