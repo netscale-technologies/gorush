@@ -59,4 +59,33 @@ brand:
       api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
     web:
       api_key: "AAAA4SKa3Qo:APA91bFTRMA4mOpaNcLRfXEDMBRtqUmfHty9R0zBH7wLVygwbxs3fsIMwIqyULRziLyIteF9m0ITbM4x9Cs7Jez18nVplffs65kbwDjwDYNgSl0hjAos79MBh9grIV7CP29XlkHlU5Eb"
-  
+  qcplus:
+    ios:
+      key_type: "p12"
+      password: "talentomobile"
+      key_file: "dkv-talento-qcplus-preprod-push.p12"
+      production: "true"
+    android:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  globality:
+    ios:
+      key_type: "p12"
+      password: "talento"
+      key_file: "dkv-globality-preprod-push.p12"
+      production: "true"
+    android:
+      api_key: "AAAAwuNIVAg:APA91bH5J4wBdkHfXUN7g_eyFCo9r0ffVQS-VcaEVAn9jNkMFV7WpQsvS_9z_CmHcikhzCa0b26rYcJNO15F583Ybc1_oD07V2E7aeXQjv69VdDICeDu7MBKaxmuCS-wsUQJ1xQb-VTH"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  sanify:
+    ios:
+      key_type: "p12"
+      password: "talentomobile"
+      key_file: "dkv-push-sanify-talento.p12"
+      production: "true"
+    android:
+      api_key: "AAAAzq1Blrw:APA91bElm9WMC5qumUKEwrHmcFY-2Tff19-rOhCglbELKXwb7gyQ1FO7OBU-MH3NH1ayJVD2fkejK5comZTx8WaQ9skMm6wOYhxNYcAl8WVaF6alKYzyKm6JRUhICW3XI5--0f68NWIe"
+    web:
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"     
