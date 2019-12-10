@@ -19,6 +19,7 @@ spec:
     metadata:
       labels:
         draft: {{ default "draft-app" $.Values.draft }}
+        app: {{ template "fullname" $ }}
         name: "{{ template "fullname" $ }}-{{ $name }}"
 {{- if $.Values.podAnnotations }}      
       annotations:   
