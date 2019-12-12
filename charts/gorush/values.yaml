@@ -43,8 +43,7 @@ readinessProbe:
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 1
-
-
+  
 certs:
   name: gorush-certs    
 
@@ -88,5 +87,4 @@ brand:
     android:
       api_key: "AAAAzq1Blrw:APA91bElm9WMC5qumUKEwrHmcFY-2Tff19-rOhCglbELKXwb7gyQ1FO7OBU-MH3NH1ayJVD2fkejK5comZTx8WaQ9skMm6wOYhxNYcAl8WVaF6alKYzyKm6JRUhICW3XI5--0f68NWIe"
     web:
-      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"      
-  
+      api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"     

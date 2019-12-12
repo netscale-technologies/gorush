@@ -5,7 +5,7 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "{{ template "fullname" $ }}-{{ $name }}"
+  name: "{{ $.Chart.Name }}-{{ $name }}"
   labels:
     draft: {{ default "draft-app" $.Values.draft }}
     chart: "{{ $.Chart.Name }}-{{ $.Chart.Version | replace "+" "_" }}"
@@ -19,7 +19,8 @@ spec:
     metadata:
       labels:
         draft: {{ default "draft-app" $.Values.draft }}
-        name: "{{ template "fullname" $ }}-{{ $name }}"
+        app: {{ $.Chart.Name }}
+        name: "{{ $.Chart.Name }}-{{ $name }}"
 {{- if $.Values.podAnnotations }}      
       annotations:   
 {{ toYaml $.Values.podAnnotations | indent 8 }}
@@ -35,7 +36,7 @@ spec:
           value: {{ quote $pval }}
 {{- end }}
         volumeMounts:
-        - name: "{{ template "fullname" $ }}-{{ $name }}"
+        - name: "{{ $.Chart.Name }}-{{ $name }}"
           mountPath: {{ $.Values.config_dir }}
 {{- if $val.ios.key_file }}               
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
@@ -67,9 +68,9 @@ spec:
         resources:
 {{ toYaml $.Values.resources | indent 12 }}
       volumes:
-      - name: "{{ template "fullname" $ }}-{{ $name }}"
+      - name: "{{ $.Chart.Name }}-{{ $name }}"
         configMap:
-          name: "{{ template "fullname" $ }}-{{ $name }}"
+          name: "{{ $.Chart.Name }}-{{ $name }}"
 {{- if $val.ios.key_file }}          
       - name: "{{ $.Values.certs.name }}-{{ $name }}"
         secret:
