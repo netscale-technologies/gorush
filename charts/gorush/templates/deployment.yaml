@@ -50,14 +50,14 @@ spec:
         - containerPort: {{ $.Values.service.internalPort }}
         readinessProbe:
           tcpSocket:
-            port: {{ .Values.service.internalPort }}
-          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            port: {{ $.Values.service.internalPort }}
+          initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
         livenessProbe:
           tcpSocket:
-            port: {{ .Values.service.internalPort }}
-          initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
-          periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            port: {{ $.Values.service.internalPort }}
+          initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
         resources:
 {{ toYaml $.Values.resources | indent 12 }}
       volumes:
