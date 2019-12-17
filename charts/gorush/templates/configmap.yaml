@@ -73,7 +73,7 @@ data:
 {{- end }}        
 {{- if $val.ios.voip }}          
           voip_enabled: true
-          voip_key_path: "{{ $.Values.certs_dir }}{{ $val.ios.voip.key_file }}"
+          voip_key_path: "{{ $.Values.certs_dir }}voip/{{ $val.ios.voip.key_file }}"
           voip_password: "{{ $val.ios.password }}"
           voip_production: {{ $val.ios.production }}         
 {{- else }}          
