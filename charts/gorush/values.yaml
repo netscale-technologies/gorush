@@ -32,6 +32,7 @@ resources:
 probePath: /
 config_dir: /config/
 certs_dir: /certificates/
+certs_dir_voip: /certificates_voip/
 key: key_file
 livenessProbe:
   initialDelaySeconds: 60
