@@ -57,7 +57,7 @@ data:
         ios:
           enabled: true
 {{- if $val.ios.key_file }}          
-          key_path: "{{ $.Values.certs_dir }}/{{ $val.ios.key_file }}"
+          key_path: "{{ $.Values.certs_dir }}{{ $val.ios.key_file }}"
           password: "{{ $val.ios.password }}"
 {{- else }}
           key_base64: "{{ $val.ios.key_base64 }}"
@@ -73,7 +73,7 @@ data:
 {{- end }}        
 {{- if $val.ios.voip }}          
           voip_enabled: true
-          voip_key_path: "{{ $.Values.certs_dir }}/{{ $val.ios.voip.key_file }}"
+          voip_key_path: "{{ $.Values.certs_dir }}{{ $val.ios.voip.key_file }}"
           voip_password: "{{ $val.ios.password }}"
           voip_production: {{ $val.ios.production }}         
 {{- else }}          
