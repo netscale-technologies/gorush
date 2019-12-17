@@ -41,10 +41,12 @@ spec:
 {{- if $val.ios.key_file }}               
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
           mountPath: {{ $.Values.certs_dir }}
+          subpath: {{ $val.ios.key_file }}
 {{- end }}           
 {{- if $val.ios.voip }} 
         - name: "{{ $.Values.certs.name }}-{{ $name }}-voip"
           mountPath: {{ $.Values.certs_dir }}
+          subpath: {{ $val.ios.voip.key_file }}
 {{- end }}                       
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
