@@ -40,11 +40,11 @@ spec:
           mountPath: {{ $.Values.config_dir }}
 {{- if $val.ios.key_file }}               
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
-          mountPath: {{ $.Values.certs_dir }}/{{ $val.ios.key_file }}
+          mountPath: {{ $.Values.certs_dir }}
 {{- end }}           
 {{- if $val.ios.voip }} 
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
-          mountPath: {{ $.Values.certs_dir }}/{{ $val.ios.voip.key_file }}
+          mountPath: {{ $.Values.certs_dir }}
 {{- end }}                       
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
