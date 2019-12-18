@@ -40,31 +40,26 @@ spec:
           mountPath: {{ $.Values.config_dir }}
 {{- if $val.ios.key_file }}               
         - name: "{{ $.Values.certs.name }}-{{ $name }}"
-          mountPath: {{ $.Values.certs_dir }}/{{ $val.ios.key_file }}
-          readOnly: true     
+          mountPath: {{ $.Values.certs_dir }}
+          subpath: {{ $val.ios.key_file }}
 {{- end }}           
 {{- if $val.ios.voip }} 
-        - name: "{{ $.Values.certs.name }}-{{ $name }}"
-          mountPath: {{ $.Values.certs_dir }}/{{ $val.ios.voip.key_file }}
-          readOnly: true     
+        - name: "{{ $.Values.certs.name }}-{{ $name }}-voip"
+          mountPath: {{ $.Values.certs_dir }}voip/
+          subpath: {{ $val.ios.voip.key_file }}
 {{- end }}                       
         ports:
         - containerPort: {{ $.Values.service.internalPort }}
-        livenessProbe:
-          httpGet:
-            path: {{ $.Values.probePath }}
+        readinessProbe:
+          tcpSocket:
             port: {{ $.Values.service.internalPort }}
           initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
           periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
-          successThreshold: {{ $.Values.livenessProbe.successThreshold }}
-          timeoutSeconds: {{ $.Values.livenessProbe.timeoutSeconds }}
-        readinessProbe:
-          httpGet:
-            path: {{ $.Values.probePath }}
+        livenessProbe:
+          tcpSocket:
             port: {{ $.Values.service.internalPort }}
-          periodSeconds: {{ $.Values.readinessProbe.periodSeconds }}
-          successThreshold: {{ $.Values.readinessProbe.successThreshold }}
-          timeoutSeconds: {{ $.Values.readinessProbe.timeoutSeconds }}
+          initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+          periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
         resources:
 {{ toYaml $.Values.resources | indent 12 }}
       volumes:

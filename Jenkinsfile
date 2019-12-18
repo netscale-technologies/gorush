@@ -29,31 +29,6 @@ pipeline {
         }
       }
     }    
-    stage('CI Build and push snapshot') {
-      when {
-        branch 'PR-*'
-      }
-      environment {
-        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-        PREVIEW_NAMESPACE = "$APP_NAME-$BRANCH_NAME".toLowerCase()
-        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
-      }
-      steps {
-        container('go') {
-          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
-            checkout scm
-            sh 'make get'
-            sh 'make build_linux_amd64'
-            sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-            sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
-          }
-          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/preview') {
-            sh "make preview"
-            sh "jx preview --app $APP_NAME --dir ../.."
-          }
-        }
-      }
-    }
     stage('Build Preview for develop') {
       when {
         branch 'develop'
