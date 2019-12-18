@@ -1,4 +1,4 @@
-FROM plugins/base:multiarch
+FROM plugins/base:linux-amd64
 
 LABEL org.label-schema.version=latest
 LABEL org.label-schema.vcs-url="https://github.com/netscale-technologies/gorush.git"
