@@ -22,13 +22,6 @@ pipeline {
 
   }
   stages {
-    stage('Pre-actions and notifications') {
-      steps {
-        script {
-          new SlackNotifier().notifyStart()
-        }
-      }
-    }    
     stage('Build Preview for develop') {
       when {
         branch 'develop'
@@ -41,7 +34,7 @@ pipeline {
       steps {
         container('go') {     
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
+            checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github.com', url: 'https://github.com/netscale-technologies/gorush']]]
             sh 'make get'
             sh 'make build_linux_amd64'
             sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
@@ -61,7 +54,7 @@ pipeline {
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
-            checkout scm: [$class: 'GitSCM', branches: [[name: '*/staging']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github', url: 'https://github.com/netscale-technologies/gorush']]]
+            checkout scm: [$class: 'GitSCM', branches: [[name: '*/staging']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github.com', url: 'https://github.com/netscale-technologies/gorush']]]
             // ensure we're not on a detached head
             sh "git checkout $CI_BRANCH_UAT"
             sh "git config --global credential.helper store"
