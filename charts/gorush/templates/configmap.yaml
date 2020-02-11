@@ -89,7 +89,7 @@ data:
 
         web:
           enabled: true
-          apikey: {{ $val.web.api_key }}
+          apikey: "{{ $val.web.api_key }}"
           max_retry: 0
 
         log:
