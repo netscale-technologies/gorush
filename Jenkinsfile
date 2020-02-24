@@ -28,6 +28,7 @@ pipeline {
       }
       environment {
         DEVELOP_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
+        PREVIEW_VERSION = "$DEVELOP_VERSION"
         DEVELOP_NAMESPACE = "jx-dkv-develop"
         HELM_RELEASE = "$DEVELOP_NAMESPACE".toLowerCase()
       }
