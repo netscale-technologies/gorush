@@ -15,7 +15,7 @@ cleanup:
     helm.sh/hook: pre-delete
     helm.sh/hook-delete-policy: hook-succeeded
 
-gorush-preview:
+gorush-develop:
   image:
     repository:
     tag:

@@ -27,9 +27,9 @@ pipeline {
         branch 'develop'
       }
       environment {
-        PREVIEW_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
-        PREVIEW_NAMESPACE = "jx-dkv-preprod"
-        HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
+        DEVELOP_VERSION = "0.0.0-SNAPSHOT-$BRANCH_NAME-$BUILD_NUMBER"
+        DEVELOP_NAMESPACE = "jx-dkv-develop"
+        HELM_RELEASE = "$DEVELOP_NAMESPACE".toLowerCase()
       }
       steps {
         container('go') {     
@@ -37,12 +37,12 @@ pipeline {
             checkout scm: [$class: 'GitSCM', branches: [[name: '*/develop']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github.com', url: 'https://github.com/netscale-technologies/gorush']]]
             sh 'make get'
             sh 'make build_linux_amd64'
-            sh "export VERSION=$PREVIEW_VERSION && skaffold build -f skaffold.yaml"
-            sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
+            sh "export VERSION=$DEVELOP_VERSION && skaffold build -f skaffold.yaml"
+            sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:$DEVELOP_VERSION"
           }
-          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/preview') {
+          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/develop') {
             sh "make preview"
-            sh "jx preview --app $APP_NAME --namespace $PREVIEW_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --dir  ../.."
+            sh "jx preview --app $APP_NAME --namespace $DEVELOP_NAMESPACE --name $PROMOTE_ENV_NAME --alias $APP_NAME --label $APP_NAME --release $APP_NAME --no-comment --no-poll --no-wait --dir  ../.."
           }          
         }
       }
