@@ -18,8 +18,7 @@ pipeline {
     PROMOTE_ENV_NAME = 'environment-dkv-preprod'
     CI_BRANCH_DEV = 'develop'
     CI_BRANCH_UAT = 'staging'
-    REMOTE_ENV_NAME = 'jx-dkv-remote'
-
+    CI_BRANCH_PROD = 'release'
   }
   stages {
     stage('Build Preview for develop') {
@@ -52,6 +51,9 @@ pipeline {
       when {
         branch 'staging'
       }
+      environment {
+        UAT_VERSION = "RELEASE-$BUILD_NUMBER"
+      }      
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
@@ -62,7 +64,7 @@ pipeline {
             sh "jx step git credentials"
 
             // so we can retrieve the version in later steps
-            sh "echo \$(jx-release-version) > VERSION"
+            sh "echo \$(jx-release-version)-$UAT_VERSION > VERSION"
             sh "jx step tag --version \$(cat VERSION) --charts-dir ./charts/gorush/"
             sh 'make get'
             sh 'make build_linux_amd64'
@@ -72,12 +74,35 @@ pipeline {
         }
       }
     }
+    stage('Build Release for Production') {
+      when {
+        branch 'release'
+      }
+      steps {
+        container('go') {
+          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush') {
+            checkout scm: [$class: 'GitSCM', branches: [[name: '*/release']], userRemoteConfigs: [[credentialsId: 'jx-pipeline-git-github-github.com', url: 'https://github.com/netscale-technologies/gorush']]]
+            // ensure we're not on a detached head
+            sh "git checkout $CI_BRANCH_PROD"
+            sh "git config --global credential.helper store"
+            sh "jx step git credentials"
+
+            // so we can retrieve the version in later steps
+            sh "jx step next-version --tag --charts-dir ./charts/gorush/"
+            sh 'make get'
+            sh 'make build_linux_amd64'
+            sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
+            sh "jx step post build --image $DOCKER_REGISTRY/$ORG/$APP_NAME:\$(cat VERSION)"
+          }
+        }
+      }
+    }    
     stage('Promote to staging/UAT environment') {
       when {
         branch 'staging'
       }
       environment {
-        STAGING_NAMESPACE = 'jx-dkv-staging'
+        REMOTE_ENV_NAME = 'jx-dkv-remote'
       }         
       steps {
         container('go') {
@@ -88,22 +113,40 @@ pipeline {
             sh "jx step helm release"
 
             // promote through promotion Environment
-            sh "jx promote -b --timeout 1h --version \$(cat ../../VERSION) --env $REMOTE_ENV_NAME"
-
-          // delete unnecessary staging namespace
-            sh "jx delete namespace $STAGING_NAMESPACE --batch-mode -y"              
+            sh "jx promote -b --timeout 1h --version \$(cat ../../VERSION) --env $REMOTE_ENV_NAME"       
           }
         }
       }
     }
+    stage('Promote to Production environment') {
+      when {
+        branch 'release'
+      }
+      environment {
+        PROD_ENV_NAME = 'jx-dkv-remote-legacy'
+      }      
+      steps {
+        container('go') {
+          dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/gorush') {
+            sh "jx step changelog --version v\$(cat ../../VERSION)"
+
+            // release the helm chart
+            sh "jx step helm release"
+
+            // promote through promotion Environment
+            sh "jx promote -b --timeout 1h --version \$(cat ../../VERSION) --env $PROD_ENV_NAME"          
+          }
+        }
+      }
+    }    
   }
   post {
-        always {
-          script {
-            new SlackNotifier().notifyResultFull()
-          }
-          cleanWs()
-        }
+    always {
+      script {
+        new SlackNotifier().notifyResultFull()
+      }
+      cleanWs()
+    }
   }
 }    
 
