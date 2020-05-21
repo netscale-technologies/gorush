@@ -85,7 +85,7 @@ data:
           voip_password: ""
           voip_production: false
 {{- end }}
-          max_concurrent_pushes: "{{ $val.ios.max_concurrent_pushes }}"
+          max_concurrent_pushes: {{ $val.ios.max_concurrent_pushes }}
           max_retry: 0
 
         web:
