@@ -102,7 +102,7 @@ pipeline {
         branch 'staging'
       }
       environment {
-        REMOTE_ENV_NAME = 'jx-dkv-remote'
+        REMOTE_ENV_NAME = 'jx-dkv-remote-preprod-legacy'
       }         
       steps {
         container('go') {
