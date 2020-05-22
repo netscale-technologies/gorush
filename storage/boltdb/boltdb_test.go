@@ -52,4 +52,6 @@ func TestBoltDBEngine(t *testing.T) {
 	boltDB.Reset()
 	val = boltDB.GetAndroidError()
 	assert.Equal(t, int64(0), val)
+
+	assert.NoError(t, boltDB.Close())
 }
