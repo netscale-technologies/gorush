@@ -111,7 +111,7 @@ pipeline {
             sh "jx step helm release"
 
             // promote through promotion Environment
-            sh "jx promote -b --ignore-local-file=true --app $APP_NAME --timeout 1h --version \$(cat ../../VERSION) --env $REMOTE_ENV_NAME"       
+            sh "jx promote -b --ignore-local-file=true --app $APP_NAME --timeout 1h --version \$(cat ../../VERSION) --env $REMOTE_ENV_NAME --verbose"       
           }
         }
       }
