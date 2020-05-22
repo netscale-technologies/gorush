@@ -55,6 +55,9 @@ fmt-check:
 vet:
 	$(GO) vet ./...
 
+get:
+	$(GO) get -v
+
 embedmd:
 	@hash embedmd > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		$(GO) get -u github.com/campoy/embedmd; \
