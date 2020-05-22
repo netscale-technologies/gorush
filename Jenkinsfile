@@ -107,8 +107,6 @@ pipeline {
       steps {
         container('go') {
           dir('/home/jenkins/agent/src/github.com/netscale-technologies/gorush/charts/gorush') {
-            sh "jx step changelog --version v\$(cat ../../VERSION)"
-
             // release the helm chart
             sh "jx step helm release"
 
