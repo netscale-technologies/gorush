@@ -65,7 +65,7 @@ pipeline {
 
             // so we can retrieve the version in later steps
             sh "echo \$(jx-release-version)-$UAT_VERSION > VERSION"
-            sh "jx step tag --version \$(cat VERSION) --tag --charts-dir ./charts/gorush/"
+            sh "jx step tag --version \$(cat VERSION) --charts-dir ./charts/gorush/"
             sh 'make get'
             sh 'make build_linux_amd64'
             sh "export VERSION=`cat VERSION` && skaffold build -f skaffold.yaml"
@@ -149,8 +149,3 @@ pipeline {
     }
   }
 }    
-
-
-
- 
-
