@@ -1,4 +1,4 @@
-module github.com/jaraxasoftware/gorush
+module github.com/netscale-technologies/gorush
 
 go 1.14
 
