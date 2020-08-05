@@ -2,7 +2,7 @@
 {{- else }}
 {{- range $name, $val := .Values.brand }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: "{{ $.Chart.Name }}-{{ $name }}"
