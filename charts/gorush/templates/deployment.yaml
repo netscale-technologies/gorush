@@ -14,6 +14,11 @@ metadata:
 {{ toYaml $.Values.deployAnnotations | indent 4 }}
 {{- end }}
 spec:
+  selector:
+    matchLabels:
+      draft: {{ default "draft-app" $.Values.draft }}
+      app: {{ $.Chart.Name }}
+      name: "{{ $.Chart.Name }}-{{ $name }}"
   replicas: {{ $.Values.replicaCount }}
   template:
     metadata:
