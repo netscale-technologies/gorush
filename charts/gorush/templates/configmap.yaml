@@ -97,7 +97,7 @@ data:
           format: "string"
           access_log: "stdout"
           {{- if $.Values.logLevel }}
-          access_level: {{ $.Values.logLevel }}
+          access_level: "{{ $.Values.logLevel }}"
           {{- else }}
           access_level: "debug"
           {{- end }}
