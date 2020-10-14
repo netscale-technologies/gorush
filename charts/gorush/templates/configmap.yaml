@@ -96,7 +96,11 @@ data:
         log:
           format: "string"
           access_log: "stdout"
+          {{- if $.Values.logLevel }}
+          access_level: {{ $.Values.logLevel }}
+          {{- else }}
           access_level: "debug"
+          {{- end }}
           error_log: "stderr" 
           error_level: "error"
           hide_token: false
