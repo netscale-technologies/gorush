@@ -93,3 +93,13 @@ brand:
       api_key: "AAAAzq1Blrw:APA91bElm9WMC5qumUKEwrHmcFY-2Tff19-rOhCglbELKXwb7gyQ1FO7OBU-MH3NH1ayJVD2fkejK5comZTx8WaQ9skMm6wOYhxNYcAl8WVaF6alKYzyKm6JRUhICW3XI5--0f68NWIe"
     web:
       api_key: "AAAAFi_MV1M:APA91bH3vk2pietQemN3UG9AYDph-3ktQVqZGuy_zhPrHKO5o68_TbiwB62Av5vK5w2g0NyNvNYVpoCtygSFGY8uFjg3pNnAzzzSKwSPi-0rhmzRNKwxmJzM08aMWpOGtUOY4VC3gndOumNaoYUDfg5CkaGFuih7AA"
+  sanat:
+    ios:
+      key_type: "p12"
+      password: "talento2020"
+      key_file: "dkv-addsana-preprod.p12"
+      production: "true"
+    android:
+      api_key: "AAAA7nqiqfk:APA91bG2U9qFvnxjCl28GSpvZk2A2dD3gkZ5IFunf4lQO_ACTfgJCmNsEfcT_gShqXVJeRaHFcp8fcTsnMisddPJJ7AvKm0YptIxAj10lNOEFHHpCWpPPJZYzdE-PUiP1J_qbsfTSFYV"
+    web:
+      api_key: "AAAA5SkSuNY:APA91bHz6pSYn4c4VelZ5gcgM3QlVudOpUOdSNDgJvN57wnmlDrihsxoUnowmDYRMDSPoWMweOmfhK9pqoHOMEJDw27ziOqs4VJEj2HIGPynPXlRfKG23soZORkq59bWsh4bsbas5e1G"
