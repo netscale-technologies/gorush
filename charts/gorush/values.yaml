@@ -99,6 +99,7 @@ brand:
       password: "talento2020"
       key_file: "dkv-addsana-preprod.p12"
       production: "true"
+      max_concurrent_pushes: 100
     android:
       api_key: "AAAA7nqiqfk:APA91bG2U9qFvnxjCl28GSpvZk2A2dD3gkZ5IFunf4lQO_ACTfgJCmNsEfcT_gShqXVJeRaHFcp8fcTsnMisddPJJ7AvKm0YptIxAj10lNOEFHHpCWpPPJZYzdE-PUiP1J_qbsfTSFYV"
     web:
